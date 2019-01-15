@@ -55,6 +55,10 @@
 			</bean>
 		</mvc:message-converters>
 	</mvc:annotation-driven>
+
+    <!--  swagger静态文件路径 -->
+    <mvc:resources mapping="/swagger/**" location="/WEB-INF/swagger/" cache-period="31556926"/>
+    <bean class="com.sanrenxin.runxinnong.common.swagger.SwaggerConfig" />
 	
     <!-- REST中根据URL后缀自动判定Content-Type及相应的View -->
 	<bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">

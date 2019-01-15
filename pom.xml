@@ -718,8 +718,34 @@
 				</exclusion>
 			</exclusions>
 		</dependency> -->
-		
-	</dependencies>
+
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>2.4.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.6.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.6.3</version>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<outputDirectory>${project.basedir}/src/main/webapp/WEB-INF/classes/</outputDirectory>
@@ -783,7 +809,7 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.4</version>
 				<configuration>
-					<encoding>${project.build.sourceEncoding}</encoding>
+					<!--<encoding>${project.build.sourceEncoding}</encoding>-->
 				</configuration>
 				<!-- <executions>
 					<execution>
@@ -1023,42 +1049,42 @@
 								<property name="dbunit.datatype" value="org.dbunit.ext.oracle.Oracle10DataTypeFactory" /> -->
 								
 								<property file="src/main/resources/jeesite.properties" />
-								<sql driver="${jdbc.driver}" url="${jdbc.url}" userid="${jdbc.username}" password="${jdbc.password}" 
-									onerror="continue" encoding="${project.build.sourceEncoding}">
-									<classpath refid="maven.test.classpath" />
-									<transaction src="db/sys/jeesite_${jdbc.type}.sql"/>
-									<transaction src="db/cms/jeesite_${jdbc.type}.sql"/>
-									<transaction src="db/oa/jeesite_${jdbc.type}.sql"/>
-									<transaction src="db/gen/jeesite_${jdbc.type}.sql"/>
-									<transaction src="db/gen/example_${jdbc.type}.sql"/>
-									<transaction src="db/test/jeesite_${jdbc.type}.sql"/>
-									<transaction src="db/act/drop/activiti.${jdbc.type}.drop.engine.sql"/>
-									<transaction src="db/act/drop/activiti.${jdbc.type}.drop.history.sql"/>
-									<transaction src="db/act/drop/activiti.${jdbc.type}.drop.identity.sql"/>
-									<transaction src="db/act/create/activiti.${jdbc.type}.create.engine.sql"/>
-									<transaction src="db/act/create/activiti.${jdbc.type}.create.history.sql"/>
-									<transaction src="db/act/create/activiti.${jdbc.type}.create.identity.sql"/>
-								</sql>
+								<!--<sql driver="${jdbc.driver}" url="${jdbc.url}" userid="${jdbc.username}" password="${jdbc.password}" -->
+									<!--onerror="continue" encoding="${project.build.sourceEncoding}">-->
+									<!--<classpath refid="maven.test.classpath" />-->
+									<!--<transaction src="db/sys/jeesite_${jdbc.type}.sql"/>-->
+									<!--<transaction src="db/cms/jeesite_${jdbc.type}.sql"/>-->
+									<!--<transaction src="db/oa/jeesite_${jdbc.type}.sql"/>-->
+									<!--<transaction src="db/gen/jeesite_${jdbc.type}.sql"/>-->
+									<!--<transaction src="db/gen/example_${jdbc.type}.sql"/>-->
+									<!--<transaction src="db/test/jeesite_${jdbc.type}.sql"/>-->
+									<!--<transaction src="db/act/drop/activiti.${jdbc.type}.drop.engine.sql"/>-->
+									<!--<transaction src="db/act/drop/activiti.${jdbc.type}.drop.history.sql"/>-->
+									<!--<transaction src="db/act/drop/activiti.${jdbc.type}.drop.identity.sql"/>-->
+									<!--<transaction src="db/act/create/activiti.${jdbc.type}.create.engine.sql"/>-->
+									<!--<transaction src="db/act/create/activiti.${jdbc.type}.create.history.sql"/>-->
+									<!--<transaction src="db/act/create/activiti.${jdbc.type}.create.identity.sql"/>-->
+								<!--</sql>-->
 								
 								<taskdef name="dbunit" classname="org.dbunit.ant.DbUnitTask" classpathref="maven.test.classpath" />
 								
 								<!-- mysql、mssql -->
-								<dbunit driver="${jdbc.driver}" url="${jdbc.url}" userid="${jdbc.username}"
-									 password="${jdbc.password}">
-								
+								<!--<dbunit driver="${jdbc.driver}" url="${jdbc.url}" userid="${jdbc.username}"-->
+									 <!--password="${jdbc.password}">-->
+								<!---->
 								<!-- oracle
 								<dbunit driver="${jdbc.driver}" url="${jdbc.url}" userid="${jdbc.username}"
 									password="${jdbc.password}" schema="${jdbc.username}" > -->
 									
-									<dbconfig>
-										<property name="datatypeFactory" value="${dbunit.datatype}" />
-									</dbconfig>
-									<classpath refid="maven.test.classpath" />
-									<operation type="INSERT" src="db/sys/jeesite_data.xls" format="xls" transaction="true"/>
-									<operation type="INSERT" src="db/cms/jeesite_data.xls" format="xls" transaction="true"/>
-									
-								</dbunit>
-								
+									<!--<dbconfig>-->
+										<!--<property name="datatypeFactory" value="${dbunit.datatype}" />-->
+									<!--</dbconfig>-->
+									<!--<classpath refid="maven.test.classpath" />-->
+									<!--<operation type="INSERT" src="db/sys/jeesite_data.xls" format="xls" transaction="true"/>-->
+									<!--<operation type="INSERT" src="db/cms/jeesite_data.xls" format="xls" transaction="true"/>-->
+									<!---->
+								<!--</dbunit>-->
+								<!---->
 							</target>
 						</configuration>
 					</plugin>
