@@ -191,7 +191,8 @@ public class JedisUtils {
 			if (jedis.exists(key)) {
 				jedis.del(key);
 			}
-			result = jedis.rpush(key, (String[])value.toArray());
+			String[] strings = new String[value.size()];
+			result = jedis.rpush(key, value.toArray(strings));
 			if (cacheSeconds != 0) {
 				jedis.expire(key, cacheSeconds);
 			}

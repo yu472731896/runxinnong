@@ -23,7 +23,7 @@ Chat.connect = (function (host) {
 
     Chat.socket.onclose = function () {
         document.getElementById('chat').onkeydown = null;
-        //Console.log('-----系统已断开连接-----');
+        Console.log('-----系统已断开连接-----');
     };
 
     Chat.socket.onmessage = function (message) {
@@ -66,6 +66,7 @@ Chat.sendMessage = (function () {
     if (msg != '') {
         var message = {};
         message.type = "guest_send";
+        message.
         message.msg = msg;
         Chat.socket.send(JSON.stringify(message));
         document.getElementById('chat').value = '';
@@ -100,7 +101,7 @@ function sendMsg() {
 }
 
 //定时任务断去请求服务器
-setInterval("heart_connect()", 10000);
+// setInterval("heart_connect()", 30000);
 
 //检测是否在线
 function heart_connect() {
@@ -109,6 +110,10 @@ function heart_connect() {
     console.log(message);
     Chat.socket.send(JSON.stringify(message));
 }
+
+////监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
+// window.onbeforeunload = function(){ websocket.close(); };
+
 
 Date.prototype.pattern = function (fmt) {
     var o = {

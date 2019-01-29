@@ -28,12 +28,11 @@
         var ws = null;
         function startWebSocket() {
             if ('WebSocket' in window)
-                ws = new WebSocket("ws://localhost:8080/runxinnong/websocket");
+                ws = new WebSocket("ws://${ctx}/websocket");
             else if ('MozWebSocket' in window)
-                ws = new MozWebSocket("ws://localhost:8080/runxinnong/websocket");
+                ws = new MozWebSocket("ws://${ctx}/websocket");
             else
                 alert("not support");
-
 
             ws.onmessage = function(evt) {
                 alert(evt.data);

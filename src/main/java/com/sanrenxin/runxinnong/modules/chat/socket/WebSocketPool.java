@@ -1,11 +1,13 @@
 package com.sanrenxin.runxinnong.modules.chat.socket;
 
-import com.sanrenxin.runxinnong.common.utils.StringUtils;
-import com.sun.tools.internal.ws.resources.WebserviceapMessages;
+import com.alibaba.fastjson.JSONObject;
+import com.sanrenxin.runxinnong.common.constant.Constant;
+import com.sanrenxin.runxinnong.common.utils.JedisUtils;
+import com.sanrenxin.runxinnong.modules.chat.entity.ChatMsg;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.method.P;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,7 +19,7 @@ import java.util.Set;
 public class WebSocketPool {
 
     //保持连接的Map容器
-    private static final Map<String, WebSocket> connections = new HashMap<String, WebSocket>(16);
+    public static final Map<String, WebSocket> connections = new HashMap<String, WebSocket>(16);
 
     //向连接池中添加连接
     public static void addWebSocket(WebSocket webSocket){
@@ -26,18 +28,42 @@ public class WebSocketPool {
         connections.put(webSocket.getSession().getId(), webSocket);
     }
 
-    //获取所有的在线用户
+    /**
+     * 获取所有的在线用户
+     */
     public static Set<String> getOnlineUser(){
         return connections.keySet();
     }
 
+    /**
+     * 获取所有在线客服
+     */
+    public static List<String> getAllOnlineCustom(){
+        return  JedisUtils.getList(Constant.Chat.ONLINE_CUSTOM);
+    }
+
+    /**
+     * 获取所有在线顾客
+     */
+    public static List<String> getAllOnlineGuest(){
+        return  JedisUtils.getList(Constant.Chat.ONLINE_GUEST);
+    }
+
+    /**
+     * 移除连接
+     * @param webSocket
+     */
     public static void removeWebSocket(WebSocket webSocket){
         //移除连接
         log.info("user : " + webSocket.getSession().getId() + " exit..");
         connections.remove(webSocket.getSession().getId());
     }
 
-    //给指定用户发送消息
+    /**
+     * 给指定用户发送消息
+     * @param sessionId 指定用户的sessionId
+     * @param message 消息
+     */
     public static void sendMessageToSocket(String sessionId,String message){
         try {
             //向特定的用户发送数据
@@ -45,6 +71,25 @@ public class WebSocketPool {
             WebSocket webSocket = connections.get(sessionId);
             if(null != webSocket){
                 webSocket.sendMessage(webSocket.getSession(),message);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            log.error("webSocket sendMessageToSocket 异常:"+e.toString());
+        }
+    }
+
+    /**
+     * 给指定用户发送消息
+     * @param sessionId 指定用户的sessionId
+     * @param chatMsg 消息类
+     */
+    public static void sendMessageToSocket(String sessionId, ChatMsg chatMsg){
+        try {
+            //向特定的用户发送数据
+            log.info("send message to sessionId : " + sessionId + " ,message content : " + chatMsg);
+            WebSocket webSocket = connections.get(sessionId);
+            if(null != webSocket){
+                webSocket.sendMessage(webSocket.getSession(), JSONObject.toJSONString(chatMsg));
             }
         }catch (Exception e){
             e.printStackTrace();

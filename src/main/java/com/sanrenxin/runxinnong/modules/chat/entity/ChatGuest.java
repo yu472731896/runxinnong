@@ -3,10 +3,10 @@ package com.sanrenxin.runxinnong.modules.chat.entity;
 import java.util.Date;
 
 /**
- *  客服（游客）
+ *  游客
  * @author mh
  */
-public class CtCustomerGuest {
+public class ChatGuest {
     /**
      * id
      */
