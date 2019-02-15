@@ -3,11 +3,12 @@ package com.sanrenxin.runxinnong.modules.chat.socket;
 import com.alibaba.fastjson.JSONObject;
 import com.sanrenxin.runxinnong.common.constant.Constant;
 import com.sanrenxin.runxinnong.common.utils.AddressUtils;
+import com.sanrenxin.runxinnong.common.utils.CacheUtils;
 import com.sanrenxin.runxinnong.common.utils.DateUtils;
-import com.sanrenxin.runxinnong.common.utils.JedisUtils;
+import com.sanrenxin.runxinnong.common.utils.IdGen;
+import com.sanrenxin.runxinnong.common.utils.RandomUtils;
 import com.sanrenxin.runxinnong.common.utils.SpringContextHolder;
 import com.sanrenxin.runxinnong.common.utils.StringUtils;
-import com.sanrenxin.runxinnong.common.utils.WebSocketUtil;
 import com.sanrenxin.runxinnong.modules.chat.entity.ChatInitMsg;
 import com.sanrenxin.runxinnong.modules.chat.entity.ChatMsg;
 import com.sanrenxin.runxinnong.modules.run.dao.ChatInfoDao;
@@ -16,8 +17,8 @@ import com.sanrenxin.runxinnong.modules.sys.entity.User;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 
-import javax.servlet.http.HttpSession;
 import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -27,18 +28,16 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author mh
  * @create 2018-12-14 11:12
  */
-@ServerEndpoint(value = "/websocket/{userType}",configurator = GetHttpSessionConfigurator.class)
+@ServerEndpoint(value = "/websocket/{userType}/{ipAddr}",configurator = GetHttpSessionConfigurator.class)
 @Slf4j
 public class WebSocket {
 
@@ -47,42 +46,59 @@ public class WebSocket {
 
     /**
      * 连接成功调用的方法
-     * @param session
-     * 参数可选
-     * ip，时间
+     * @param session 会话信息
+     * @param userType  用户类型
+     * @param ipAddr    ip地址
      */
     @OnOpen
-    public void onOpen(Session session, @PathParam(value="userType") String userType, EndpointConfig config) {
+    public void onOpen(Session session, @PathParam(value="userType") String userType,
+                       @PathParam(value="ipAddr") String ipAddr,EndpointConfig config) {
         this.session = session;
         this.userType = userType;
-        HttpSession httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
-        openHandle(session,userType,httpSession);
+        this.ipAddr = ipAddr;
+        this.connectTime = new Date();
+
+        //重复刷新页面的话，会重复添加sessionid， 隐藏地址栏，设置鼠标右键功能，关闭聊天窗口不断开会话直到关闭网页
+        // TODO: 2019/2/14
+
+        openHandle(session,userType,config,ipAddr);
         WebSocketPool.addWebSocket(this);
     }
 
     /**
-     * 收到客户端消息后调用的方法
+     * 收到消息后调用的方法
      * @param message 客户端发送过来的消息
      * @param session 可选的参数
+     *
+     *     {
+     *         fromSessionId："1" ,
+     *         toSessionId："2" ,
+     *         msgType:"guestSend" ,
+     *         msg:"内容"
+     *     }
      */
     @OnMessage
     public void onMessage(String message, Session session) {
         ChatMsg receiveMsg = JSONObject.parseObject(message,ChatMsg.class);
-        //判断消息类型  顾客或者客服类型
-        if(receiveMsg.getType().equals(Constant.Chat.TYPE_GUEST_SEND) ||
-                receiveMsg.getType().equals(Constant.Chat.TYPE_CUESTOM_SEND)){
-            WebSocketPool.sendMessageToSocket(receiveMsg.getSendToSessionID(),ChatMsg.successMsg(receiveMsg.getMsg()));
-        }
-    }
+        if(receiveMsg.getType().equals("heart_connect")){
 
+        }else{
+            //判断消息类型  顾客或者客服类型
+            if(receiveMsg.getType().equals(Constant.Chat.TYPE_GUEST_SEND) ||
+                    receiveMsg.getType().equals(Constant.Chat.TYPE_CUESTOM_SEND)){
+                WebSocketPool.sendMessageToSocket(receiveMsg.getToSessionId(),ChatMsg.successMsg(receiveMsg.getMsg()));
+            }
+        }
+
+    }
 
     /**
      *  连接关闭调用的方法
      */
     @OnClose
-    public void onClose() {
-
-        System.out.println("close.sessionId--->"+session.getId());
+    public void onClose(Session session) {
+        //移除对应session信息
+        WebSocketPool.removeWebSocket(session.getId());
     }
 
     /**
@@ -102,49 +118,57 @@ public class WebSocket {
     /**
      * 创建聊天处理
      *
-     * 1、若成功 添加 guestid 和 customid
-     *
-     * @param session 当前session
+     *  添加 guestid 和 customid
+     *  @param session 当前session
      * @param userType 用户类型
+     * @param ipAddr ip地址
      */
-    private void openHandle(Session session,String userType,HttpSession httpSession){
-
+    private void openHandle(Session session, String userType, EndpointConfig config, String ipAddr){
         try {
             //判断连接用户类型
-            //客服人员
-            if(Constant.Chat.USER_TYPE_CUSTOMER.equals(userType)){
-                //添加在线客服
-                addOnlineCustom(session);
-
+            if(Constant.Chat.USER_TYPE_CUSTOMER.equals(userType)){ //客服人员
                 // 获取客服信息
                 User user = (User) session.getUserProperties().get("user");
-                Map<String,Object> resultMap = new HashMap<String, Object>(16);
-                if(null != user && StringUtils.isNotBlank(user.getId())){
-                    resultMap.put(Constant.Chat.SYS_USER,user);
-                }
-                resultMap.put(Constant.Chat.SESSION_ID,session.getId());
-                resultMap.put(Constant.Chat.CREATE_TIME,DateUtils.getDate());
+                this.id = user.getId();
+                this.name = user.getName();
+                //添加在线客服
+                WebSocketPool.addOnlineCustom(this);
+                WebSocketPool.updateWebSocket(this);
+
+                ChatInitMsg initMsg = new ChatInitMsg();
+                initMsg.setCustomerSessionId(session.getId());
+                initMsg.setDate(new Date());
                 //获取当前所有在线游客列表
-                List<String> allOnlineGuest = WebSocketPool.getAllOnlineGuest();
+                Map<String, WebSocket> allOnlineGuest = WebSocketPool.getAllOnlineGuest();
+                initMsg.setData(allOnlineGuest);
+                //将游客信息发送给客服
+                WebSocketPool.sendMessageToSocket(session.getId(),JSONObject.toJSONString(initMsg));
 
             }else{//顾客类型
                 //添加在线顾客
-                addOnlineGuest(session);
+                WebSocketPool.addOnlineGuest(this);
 
-                //添加对话信息
-                String IpAddress = WebSocketUtil.getRemoteAddress(session).toString();
-                IpAddress = IpAddress.substring(0,IpAddress.indexOf(":"));
-                String address = AddressUtils.getAddressByIp(IpAddress);
+                //添加对话信息,在客服进行对话时添加客服信息
                 ChatInfo chatInfo = new ChatInfo();
-                chatInfo.setIpAddress(IpAddress);
-                chatInfo.setAddress(address);
+                String address = "";
+                if(StringUtils.isNotBlank(ipAddr)){
+                    address = AddressUtils.getAddressByIp(ipAddr);
+                    chatInfo.setIpAddress(ipAddr);
+                    chatInfo.setAddress(address);
+                }
+                chatInfo.setGuestId(IdGen.uuid());
+                chatInfo.setCreateDate(new Date());
+                chatInfo.preInsert();
                 chatInfoDao.insert(chatInfo);
 
-                //随机指定一名在线客服人员接通连线
-                List<String> onlineCustomSessionIdList = WebSocketPool.getAllOnlineCustom();
-                if(onlineCustomSessionIdList != null && !onlineCustomSessionIdList.isEmpty()){
-                    Random random = new Random();
-                    String customSessionId = onlineCustomSessionIdList.get(random.nextInt());
+                this.id = chatInfo.getGuestId();
+                this.name = address + RandomStringUtils.randomNumeric(5);
+                WebSocketPool.updateWebSocket(this);
+
+                Map<String, WebSocket> onlineCustomMap = WebSocketPool.getAllOnlineCustom();
+                if(onlineCustomMap != null && !onlineCustomMap.isEmpty()){
+                    //随机指定一名在线客服人员接通连线
+                    WebSocket customerSocket = RandomUtils.getRandomValueFromMap(onlineCustomMap);
                     //给当前客户发送消息
                     // xxxx 客服正在建立连接请稍等.....  发送等待状态，直到客服进入
                     ChatInitMsg msgToGuest = new ChatInitMsg();
@@ -152,17 +176,19 @@ public class WebSocket {
                     msgToGuest.setType("0");
                     msgToGuest.setMsg("客服正在建立连接请稍等.....");
                     msgToGuest.setGuestSessionId(session.getId());
-                    msgToGuest.setCustomSessionId(customSessionId);
+                    msgToGuest.setCustomerSessionId(customerSocket.getSession().getId());
+                    msgToGuest.setDate(new Date());
                     WebSocketPool.sendMessageToSocket(session.getId(),JSONObject.toJSONString(msgToGuest));
 
                     //向指定的客服推送连接信息
                     ChatInitMsg msgToCustom = new ChatInitMsg();
                     msgToCustom.setCode(Constant.Chat.CODE_SUCCESS);
-                    msgToCustom.setType(Constant.Chat.TYPE_SYS);
+                    msgToCustom.setType(Constant.Chat.TYPE_GUEST_JOIN);
                     msgToCustom.setMsg("顾客进行呼叫.....");
                     msgToCustom.setGuestSessionId(session.getId());
-                    msgToCustom.setCustomSessionId(customSessionId);
-                    WebSocketPool.sendMessageToSocket(session.getId(),JSONObject.toJSONString(msgToCustom));
+                    msgToCustom.setCustomerSessionId(customerSocket.getSession().getId());
+                    WebSocketPool.sendMessageToSocket(customerSocket.getSession().getId(),JSONObject.toJSONString(msgToCustom));
+
                 }else{//当前无客服在线
                     ChatInitMsg msgToGuest = new ChatInitMsg();
                     msgToGuest.setCode(Constant.Chat.CODE_SUCCESS);
@@ -178,42 +204,6 @@ public class WebSocket {
         }
     }
 
-
-    /**
-     * 添加在线客服
-     * @param session 会话
-     * @author mh
-     * @create 2018-12-14 11:12
-     */
-    private void addOnlineCustom(Session session){
-        //在线表中添加客服信息（redis）
-        List<String> onlineCustomSessionIdList = JedisUtils.getList(Constant.Chat.ONLINE_CUSTOM);
-        if(onlineCustomSessionIdList == null){
-           onlineCustomSessionIdList = new ArrayList<String>();
-        }
-        if(!onlineCustomSessionIdList.contains(session.getId())){
-            onlineCustomSessionIdList.add(session.getId().toString());
-        }
-        JedisUtils.setList(Constant.Chat.ONLINE_CUSTOM,onlineCustomSessionIdList,0);
-    }
-
-    /**
-     * 添加在线顾客
-     * @param session 会话
-     * @author mh
-     * @create 2018-12-14 11:12
-     */
-    private void addOnlineGuest(Session session){
-        //在线表中添加顾客信息（redis）
-        List<String> onlinGuestSessionIdList = JedisUtils.getList(Constant.Chat.ONLINE_GUEST);
-        if(onlinGuestSessionIdList == null){
-            onlinGuestSessionIdList = new ArrayList<String>();
-        }
-        if( !onlinGuestSessionIdList.contains(session.getId())){
-            onlinGuestSessionIdList.add(session.getId());
-        }
-        JedisUtils.setList(Constant.Chat.ONLINE_GUEST,onlinGuestSessionIdList,0);
-    }
 
     /**
      * 用户连接的session
@@ -249,5 +239,26 @@ public class WebSocket {
     @Getter
     @Setter
     private String name;
+
+    /**
+     * 用户id
+     */
+    @Getter
+    @Setter
+    private String id;
+
+    /**
+     * 用户ip地址
+     */
+    @Getter
+    @Setter
+    private String ipAddr;
+
+    /**
+     * 连接时间
+     */
+    @Getter
+    @Setter
+    private Date connectTime;
 
 }

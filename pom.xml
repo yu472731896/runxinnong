@@ -558,7 +558,7 @@
 
 		<dependency>
 			<groupId>javax.websocket</groupId>
-			<artifactId>javax.websocket-api</artifactId>
+			<artifactId>javax.websocket-all</artifactId>
 			<version>1.1</version>
 			<scope>provided</scope>
 		</dependency>
@@ -756,8 +756,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.5.1</version>
 				<configuration>
-					<source>${jdk.version}</source>
-					<target>${jdk.version}</target>
+					<source>7</source>
+					<target>7</target>
 					<showWarnings>true</showWarnings>
 				</configuration>
 			</plugin>

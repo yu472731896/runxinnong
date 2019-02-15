@@ -14,7 +14,8 @@ Chat.connect = (function (host) {
 
     Chat.socket.onopen = function () {
         //Console.log('-----系统已连接-----');
-        document.getElementById('chat').onkeydown = function (event) {
+        console.log("-----系统已连接-----");
+        document.getElementById('EditBox').onkeydown = function (event) {
             if (event.keyCode == 13) {
                 Chat.sendMessage();
             }
@@ -22,58 +23,71 @@ Chat.connect = (function (host) {
     };
 
     Chat.socket.onclose = function () {
-        document.getElementById('chat').onkeydown = null;
+      /*  document.getElementById('EditBox').onkeydown = null;*/
         Console.log('-----系统已断开连接-----');
+        console.log("-----系统已断开连接-----");
     };
 
     Chat.socket.onmessage = function (message) {
         var message = JSON.parse(message.data);
-        if (message.type == "no_customer") {
-            Console.log(message.nickname, message.picture, message.msg, "", "odd");
-            $(".form-control").attr("disabled", "true");
-            $(".send-button").attr("disabled", "disabled");
-            return;
-        } else {
-            $(".form-control").removeAttr("disabled");
-            $(".send-button").removeAttr("disabled");
+        if(message.code == 0){//通讯成功
+            if (message.type == -1) {//无在线客服
+                //跳转或显示留言页面
+
+                console.log("无在线客服");
+                return;
+            }
+
+            if(message.type == 0) { //系统消息（初始化用户信息）
+                $("#guestSessionId").val(message.guestSessionId);
+                $("#customerSessionId").val(message.customerSessionId);
+                var guestSessionId = $("#guestSessionId").val();
+                var customerSessionId = $("#customerSessionId").val();
+                //显示系统消息
+                // Console.log(customerName, customerPicture, msg, createtime, "odd");
+            }
+            addMessage(message);
         }
-        if (message.type == "guest_join") {
-            $("#mynickname").val(message.nickname);
-            $("#mypicture").val(message.picture);
-            $("#cnickname").val(message.cnickname);
-            $("#cpicture").val(message.cpicture);
-        }
-        var cnickname = $("#cnickname").val();
-        var cpicture = $("#cpicture").val();
-        var createtime = new Date().pattern("yyyy-MM-dd HH:mm:ss");
-        var msg = message.msg;
-        Console.log(cnickname, cpicture, msg, createtime, "odd");
     };
 });
 
 Chat.initialize = function () {
     if (window.location.protocol == 'http:') {
         // Chat.connect('ws://' + window.location.host + '/runxinnong/websocket' + window.location.search);
-        Chat.connect('ws://' + window.location.host + '/runxinnong/websocket/0');
+        Chat.connect('ws://' + window.location.host + '/runxinnong/websocket/0/'+ipAddr);
     } else {
-        Chat.connect('wss://' + window.location.host + '/runxinnong/websocket/0');
+        Chat.connect('wss://' + window.location.host + '/runxinnong/websocket/0/'+ipAddr);
     }
 };
 
 Chat.sendMessage = (function () {
-    var msg = document.getElementById('chat').value;
-    console.log(msg);
-    if (msg != '') {
-        var message = {};
-        message.type = "guest_send";
-        message.
-        message.msg = msg;
-        Chat.socket.send(JSON.stringify(message));
-        document.getElementById('chat').value = '';
-        var mynickname = $("#mynickname").val();
-        var mypicture = $("#mypicture").val();
-        var time = new Date().pattern("yyyy-MM-dd HH:mm:ss");
-        Console.log(mynickname, mypicture, msg, time, "even");
+    if (!um.hasContents()) {  // 判断消息输入框是否为空
+        // 消息输入框获取焦点
+        um.focus();
+        // 添加抖动效果
+        $('.edui-container').addClass('am-animation-shake');
+        setTimeout("$('.edui-container').removeClass('am-animation-shake')", 1000);
+    } else {
+        //获取输入框的内容
+        var txt = um.getContent();
+        //获取发往的sessionId 和 发送方sessionId
+        var guestSessionId = $("#guestSessionId").val();
+        var customerSessionId = $("#customerSessionId").val();
+        //构建一个标准格式的JSON对象
+        var obj = JSON.stringify({
+            type:"guestSend",
+            fromSessionId:guestSessionId,
+            toSessionId:customerSessionId,
+            msg:txt
+        });
+        // 发送消息
+        // socket.send(obj);
+        Chat.socket.send(JSON.stringify(obj));
+
+        // 清空消息输入框
+        um.setContent('');
+        // 消息输入框获取焦点
+        um.focus();
     }
 });
 
@@ -94,8 +108,6 @@ Console.log = (function (nickname, picture, msg, createtime, classtype) {
     window.scrollBy($("#console ul").last().height(), $("#console ul").last().height());
 });
 
-Chat.initialize();
-
 function sendMsg() {
     Chat.sendMessage();
 }
@@ -114,6 +126,21 @@ function heart_connect() {
 ////监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
 // window.onbeforeunload = function(){ websocket.close(); };
 
+function addMessage(data){
+    var box = $("#msgtmp").clone(); 	//复制一份模板，取名为box
+    box.show();							//设置box状态为显示
+    box.appendTo("#chatContent");		//把box追加到聊天面板中
+    box.find('[ff="nickname"]').html(data.name); //在box中设置昵称
+    if(!data.photo == null || !data.photo == ""){ //在box中设置头像
+        box.find('[ff="photo"]').html(data.photo);
+    }
+    box.find('[ff="msgdate"]').html(data.date); 		//在box中设置时间
+    box.find('[ff="content"]').html(data.msg); 	//在box中设置内容
+    box.addClass(data.isSelf? 'am-comment-flip':'');	//右侧显示
+    box.addClass(data.isSelf? 'am-comment-warning':'am-comment-success');//颜色
+    box.css((data.isSelf? 'margin-left':'margin-right'),"20%");//外边距
+    $("#ChatBox div:eq(0)").scrollTop(999999); 	//滚动条移动至最底部
+}
 
 Date.prototype.pattern = function (fmt) {
     var o = {
@@ -147,4 +174,6 @@ Date.prototype.pattern = function (fmt) {
         }
     }
     return fmt;
-}; 
+};
+
+Chat.initialize();

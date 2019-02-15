@@ -1,4 +1,4 @@
-﻿<%@ page language="java" pageEncoding="UTF-8" %>
+﻿w<%@ page language="java" pageEncoding="UTF-8" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <c:set var="ctxStatic" value="${pageContext.request.contextPath}/static"/>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -8,6 +8,7 @@
     <title>在线客服系统</title>
     <link rel="stylesheet" type="text/css" href="${ctxStatic}/chat/css/customer.css?v=0.1"/>
     <script type="text/javascript" src="${ctxStatic}/chat/js/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript">var ipAddr='${ipAddr}';</script>
     <script type="text/javascript" src="${ctxStatic}/chat/js/customer.js?v=0.1"></script>
     <!--[if lt IE 7]>
     <script src="${ctxStatic}/chat/js/IE7.js" type="text/javascript"></script>

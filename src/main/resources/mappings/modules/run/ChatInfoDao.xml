@@ -78,8 +78,8 @@
 			del_flag
 		) VALUES (
 			#{id},
-			#{custom.id},
-			#{guest.id},
+			#{customId},
+			#{guestId},
 			#{ipAddress},
 			#{address},
 			#{createBy.id},

@@ -2,6 +2,7 @@ package com.sanrenxin.runxinnong.modules.chat.socket;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sanrenxin.runxinnong.common.constant.Constant;
+import com.sanrenxin.runxinnong.common.utils.CacheUtils;
 import com.sanrenxin.runxinnong.common.utils.JedisUtils;
 import com.sanrenxin.runxinnong.modules.chat.entity.ChatMsg;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,13 @@ public class WebSocketPool {
         connections.put(webSocket.getSession().getId(), webSocket);
     }
 
+    //向连接池中修改连接
+    public static void updateWebSocket(WebSocket webSocket){
+        //修改连接
+        log.info("user : " + webSocket.getSession().getId() + " update..");
+        connections.put(webSocket.getSession().getId(), webSocket);
+    }
+
     /**
      * 获取所有的在线用户
      */
@@ -38,25 +46,62 @@ public class WebSocketPool {
     /**
      * 获取所有在线客服
      */
-    public static List<String> getAllOnlineCustom(){
-        return  JedisUtils.getList(Constant.Chat.ONLINE_CUSTOM);
+    public static Map<String, WebSocket> getAllOnlineCustom(){
+        return (Map<String, WebSocket>) CacheUtils.get(Constant.Chat.ONLINE_CUSTOM);
     }
 
     /**
      * 获取所有在线顾客
      */
-    public static List<String> getAllOnlineGuest(){
-        return  JedisUtils.getList(Constant.Chat.ONLINE_GUEST);
+    public static Map<String, WebSocket> getAllOnlineGuest(){
+        return (Map<String, WebSocket>) CacheUtils.get(Constant.Chat.ONLINE_GUEST);
+    }
+
+    /**
+     * 添加在线客服
+     * @param webSocket 信息
+     * @author mh
+     * @create 2018-12-14 11:12
+     */
+    public static void addOnlineCustom(WebSocket webSocket){
+        //在线表中添加客服信息（redis）
+        Map<String, WebSocket> onlineCustomWebSocketMap = (Map<String, WebSocket>) CacheUtils.get(Constant.Chat.ONLINE_CUSTOM);
+        if(onlineCustomWebSocketMap == null){
+            onlineCustomWebSocketMap = new HashMap<String, WebSocket>();
+        }
+        if(!onlineCustomWebSocketMap.containsKey(webSocket.getSession().getId())){
+            onlineCustomWebSocketMap.put(webSocket.getSession().getId(),webSocket);
+        }
+        CacheUtils.put(Constant.Chat.ONLINE_CUSTOM,onlineCustomWebSocketMap);
+    }
+
+    /**
+     * 添加在线顾客
+     * @param webSocket 信息
+     * @author mh
+     * @create 2018-12-14 11:12
+     */
+    public static void addOnlineGuest(WebSocket webSocket){
+        //在线表中添加顾客信息（redis）
+        Map<String, WebSocket> onlinGuestWebSocketMap = (Map<String, WebSocket>) CacheUtils.get(Constant.Chat.ONLINE_GUEST);
+        if(onlinGuestWebSocketMap == null){
+            onlinGuestWebSocketMap = new HashMap<String, WebSocket>();
+        }
+        if( !onlinGuestWebSocketMap.containsKey(webSocket.getSession().getId())){
+            onlinGuestWebSocketMap.put(webSocket.getSession().getId(),webSocket);
+        }
+        CacheUtils.put(Constant.Chat.ONLINE_GUEST,onlinGuestWebSocketMap);
     }
 
     /**
      * 移除连接
-     * @param webSocket
+     * @param sessionId 会话id
      */
-    public static void removeWebSocket(WebSocket webSocket){
+    public static void removeWebSocket(String sessionId){
+        WebSocket webSocket = connections.get(sessionId);
         //移除连接
-        log.info("user : " + webSocket.getSession().getId() + " exit..");
-        connections.remove(webSocket.getSession().getId());
+        log.info("user:" + webSocket.getSession().getId() + ",name:" + webSocket.getName() + " exit..");
+        connections.remove(sessionId);
     }
 
     /**
@@ -70,7 +115,8 @@ public class WebSocketPool {
             log.info("send message to sessionId : " + sessionId + " ,message content : " + message);
             WebSocket webSocket = connections.get(sessionId);
             if(null != webSocket){
-                webSocket.sendMessage(webSocket.getSession(),message);
+//                webSocket.sendMessage(webSocket.getSession(),message);
+                webSocket.getSession().getAsyncRemote().sendText(message);
             }
         }catch (Exception e){
             e.printStackTrace();

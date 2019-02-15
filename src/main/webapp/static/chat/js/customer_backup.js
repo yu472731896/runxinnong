@@ -33,10 +33,13 @@ $(document).ready(function () {
 
     Chat.initialize = function () {
         if (window.location.protocol == 'http:') {
+            // Chat.connect('ws://' + window.location.host + '/runxinnong/websocket?usertype=customer');
             Chat.connect('ws://' + window.location.host + '/runxinnong/websocket/1/'+ipAddr);
         } else {
+            // Chat.connect('wss://' + window.location.host + '/runxinnong/websocket?usertype=customer');
             Chat.connect('wss://' + window.location.host + '/runxinnong/websocket/1/'+ipAddr);
         }
+        // var websocket = new WebSocket("ws://localhost:8080/runxinnong/websocket");
     };
 
     Chat.initialize();
@@ -125,9 +128,6 @@ $(document).ready(function () {
         ;
     }
 
-    /**
-     * 发送数据
-     */
     function send() {
         function h() {
             -1 != g.indexOf("*#emo_") && (g = g.replace("*#", "<img src='http://" + window.location.host + "/images/chat/img/").replace("#*", ".gif'/>"), h());
@@ -136,10 +136,8 @@ $(document).ready(function () {
         var e = new Date,
             f = "";
         f += e.getFullYear() + "-", f += e.getMonth() + 1 + "-", f += e.getDate() + "  ", f += e.getHours() + ":", f += e.getMinutes() + ":", f += e.getSeconds();
-
         var g = $("#textarea").val();
         h();
-        //头像 名称
         b = $("#mypicture").val();
         c = $("#mynickname").val();
         var i = "<div class='message clearfix'><div class='user-logo'><img src='" + b + "'/>" + "</div>" + "<div class='wrap-text'>" + "<h5 class='clearfix'>" + c + "</h5>" + "<div>" + g + "</div>" + "</div>" + "<div class='wrap-ri'>" + "<div clsss='clearfix'><span>" + f + "</span></div>" + "</div>" + "<div style='clear:both;'></div>" + "</div>";
@@ -195,10 +193,10 @@ $(document).ready(function () {
             $("#myinboundId").val(message.myinboundId);
             $("#mynickname").val(message.sysUser.nickname);
             $("#mypicture").val(message.sysUser.picture);
-        }else if (message.type == "guest_join") { //添加游客
+        } else if (message.type == "guest_join") {
             var guestList = '<li class=""><label class="online"></label><a href="javascript:;"><img src="' + message.picture + '" id="img' + message.inboundId + '"  height="30" width="30"></a><a href="javascript:;" class="chat03_name">' + message.nickname + '</a><input type="hidden" class="chat_inboundId" value=' + message.inboundId + '></li>';
             $(".chat03_content ul").prepend(guestList);
-            var chat_div = '<div class="message_box mes' + message.sessionId + '" inboundId="' + message.sessionId + '" picture="' + message.picture + '" nickname="' + message.data.name + '"></div>';
+            var chat_div = '<div class="message_box mes' + message.inboundId + '" inboundId="' + message.inboundId + '" picture="' + message.picture + '" nickname="' + message.nickname + '"></div>';
             $(".chat01_content").append(chat_div);
             $(".chat03_content").scrollTop(0);
         } else if (message.type == "guest_send") {

@@ -26,7 +26,8 @@ public class Constant {
         public static final String TYPE_NO_CUSTOMER = "-1";
         public static final String TYPE_GUEST_SEND = "guest_send";
         public static final String TYPE_CUESTOM_SEND = "cuestom_send";
-
+        public static final String TYPE_GUEST_JOIN = "guest_join";
+        public static final String TYPE_CUESTOMER_JOIN = "customer_join";
 
         /**
          * 顾客类型
@@ -36,17 +37,25 @@ public class Constant {
          * 客服类型
          */
         public static final String  USER_TYPE_CUSTOMER = "1";
-
-        //在线客服缓存key
+        /**
+         * 在线客服缓存key
+         */
         public static final String ONLINE_CUSTOM = "ONLINE_CUSTOM_SESSIONID";
-        //在线顾客缓存key
+        /**
+         * 在线顾客缓存key
+         */
         public static final String ONLINE_GUEST = "ONLINE_GUEST";
-
-        //登录的系统用户名称
+        /**
+         * 登录的系统用户名称
+         */
         public static final String SYS_USER= "sysUser";
-        //当前登录的sessionId
+        /**
+         * 当前登录的sessionId
+         */
         public static final String SESSION_ID= "sessionId";
-        //创建时间
+        /**
+         * 创建时间
+         */
         public static final String CREATE_TIME= "createTime";
     }
 }

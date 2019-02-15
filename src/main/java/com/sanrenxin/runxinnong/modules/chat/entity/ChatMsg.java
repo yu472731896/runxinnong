@@ -1,13 +1,10 @@
 package com.sanrenxin.runxinnong.modules.chat.entity;
 
-import com.sanrenxin.runxinnong.common.constant.Constant;
 import com.sanrenxin.runxinnong.common.utils.DateUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
-import java.util.Date;
 
 /**
  * 消息类
@@ -21,8 +18,8 @@ import java.util.Date;
 @ToString
 public class ChatMsg {
 
-    private static final String successCode = "0";
-    private static final String errorCode = "-1";
+    private static final String SUCCESS_CODE = "0";
+    private static final String ERROR_CODE = "-1";
 
     /**
      * 返回状态码 0：成功，-1失败
@@ -30,7 +27,7 @@ public class ChatMsg {
     private String code;
 
     /**
-     * 消息类型 guest_send:顾客端发送消息，cuestom_send:客服端发送消息
+     * 消息类型 guest_send:顾客端发送消息，cuestom_send:客服端发送消息,heart_connect:心跳
      */
     private String type;
 
@@ -43,7 +40,13 @@ public class ChatMsg {
      * 发送给sessionId
      * sendTo
      */
-    private String sendToSessionID;
+    private String toSessionId;
+
+    /**
+     * 消息来自sessionId
+     * sendTo
+     */
+    private String fromSessionID;
 
     /**
      * 消息时间
@@ -53,14 +56,14 @@ public class ChatMsg {
     public static ChatMsg successMsg(String msg){
         ChatMsg chatMsg = new ChatMsg();
         chatMsg.setDateTime(DateUtils.getDateTime());
-        chatMsg.setMsg(successCode);
+        chatMsg.setMsg(SUCCESS_CODE);
         return chatMsg;
     }
 
     public static ChatMsg errorMsg(String msg){
         ChatMsg chatMsg = new ChatMsg();
         chatMsg.setDateTime(DateUtils.getDateTime());
-        chatMsg.setMsg(errorCode);
+        chatMsg.setMsg(ERROR_CODE);
         return chatMsg;
     }
 }

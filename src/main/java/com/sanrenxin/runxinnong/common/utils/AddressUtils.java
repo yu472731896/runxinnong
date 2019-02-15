@@ -2,6 +2,7 @@ package com.sanrenxin.runxinnong.common.utils;
 
 import com.alibaba.fastjson.JSONObject;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -27,6 +28,10 @@ import java.net.URL;
  * @version 1.0
  */
 public class AddressUtils {
+
+    private static final String LocalAddress_0 = "127.0.0.1";
+    private static final String LocalAddress_1 = "0:0:0:0:0:0:0:1";
+
     /**
      * @param content  请求的参数 格式为：name=xxx&pwd=xxx
      * @param encodingString 服务器端请求编码。如GBK,UTF-8等
@@ -173,7 +178,11 @@ public class AddressUtils {
     public static String getAddressByIp(String ip) throws Exception {
         // 参数ip
 //		String ip = "219.136.134.157";
-//        String ip = "222.76.243.167";
+//      String ip = "222.76.243.167";
+
+        if(ip.equals(LocalAddress_0) || ip.equals(LocalAddress_1)){
+            return "本地";
+        }
 
         // json_result用于接收返回的json数据
         String json_result = null;

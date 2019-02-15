@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.Date;
+
 /**
  * 消息类
  *
@@ -33,19 +35,24 @@ public class ChatInitMsg{
     private String msg;
 
     /**
-     * 发送给sessionId
+     * 游客sessionId
      * sendTo
      */
     private String guestSessionId;
 
     /**
-     * 消息来自方的sessionId
+     * 客服sessionId
      * from
      */
-    private String customSessionId;
+    private String customerSessionId;
 
     /**
-     * 数据
+     * 时间
+     */
+    private Date date;
+
+    /**
+     *  数据
      */
     private Object data;
 }
