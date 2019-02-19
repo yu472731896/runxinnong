@@ -20,6 +20,8 @@
     <script type="text/javascript" charset="utf-8" src="${ctxStatic}/umeditor/umeditor.config.js"></script>
     <script type="text/javascript" charset="utf-8" src="${ctxStatic}/umeditor/umeditor.min.js"></script>
     <script type="text/javascript" src="${ctxStatic}/umeditor/lang/zh-cn/zh-cn.js"></script>
+    <script type="text/javascript">var ipAddr='${ipAddr}';</script>
+    <script type="text/javascript" src="${ctxStatic}/chat/js/guest.js?v=0.1"></script>
 </head>
 <body>
 <div data-role="page" id="main" style="overflow-y:auto;">
@@ -108,7 +110,5 @@
             ]*/
     });
 </script>
-<script type="text/javascript">var ipAddr='${ipAddr}';</script>
-<script type="text/javascript" src="${ctxStatic}/chat/js/guest.js?v=0.1"></script>
 </body>
 </html>

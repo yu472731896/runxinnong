@@ -3,6 +3,14 @@ package com.sanrenxin.runxinnong.common.upload;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import com.ckfinder.connector.ServletContextFactory;
+import com.google.common.collect.Maps;
+import com.sanrenxin.runxinnong.common.config.Global;
+import com.sanrenxin.runxinnong.common.utils.FileUtils;
+import com.sanrenxin.runxinnong.common.utils.StringUtils;
+import com.sanrenxin.runxinnong.modules.sys.security.SystemAuthorizingRealm;
+import com.sanrenxin.runxinnong.modules.sys.utils.UserUtils;
 import org.apache.commons.fileupload.*;
 import org.apache.commons.fileupload.FileUploadBase.InvalidContentTypeException;
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
@@ -217,6 +225,10 @@ public class Uploader {
 		String realPath = this.request.getSession().getServletContext()
 				.getRealPath(servletPath);
 		return new File(realPath).getParent() +"/" +path;
+//		使用本地配置中的路径保存文件
+//        SystemAuthorizingRealm.Principal principal = (SystemAuthorizingRealm.Principal) UserUtils.getPrincipal();
+//        String userFileBaseDir = FileUtils.path(Global.getUserfilesBaseDir() + Global.USERFILES_BASE_URL + principal + "/");
+//        return userFileBaseDir +"/" +path;
 	}
 
 	public void setSavePath(String savePath) {
