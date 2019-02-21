@@ -21,13 +21,14 @@ public class Constant {
          * 0：系统消息，1：普通消息，-1：无客服状态,
          * guest_send:顾客端发送消息，cuestom_send:客服端发送消息
          */
-        public static final String TYPE_SYS = "0";
+        public static final String TYPE_SYS = "sys";
         public static final String TYPE_COMMON = "1";
         public static final String TYPE_NO_CUSTOMER = "-1";
         public static final String TYPE_GUEST_SEND = "guest_send";
-        public static final String TYPE_CUESTOM_SEND = "cuestom_send";
+        public static final String TYPE_CUSTOMER_SEND = "customer_send";
         public static final String TYPE_GUEST_JOIN = "guest_join";
         public static final String TYPE_CUESTOMER_JOIN = "customer_join";
+        public static final String TYPE_guest_offline = "guest_offline";
 
         /**
          * 顾客类型

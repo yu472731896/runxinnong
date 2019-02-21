@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * 消息类
@@ -25,7 +26,8 @@ public class ChatInitMsg{
     private String code;
 
     /**
-     * 消息类型 0：系统消息，1：普通消息，-1：无客服状态
+     * 消息类型 sys：系统消息，no_customer：无客服状态
+     * 消息类型 guest_send:顾客端发送消息，customer_send:客服端发送消息,heart_connect:心跳,by_self:自己返回消息
      */
     private String type;
 

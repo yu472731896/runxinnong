@@ -23,37 +23,44 @@ Chat.connect = (function (host) {
     };
 
     Chat.socket.onclose = function () {
-      /*  document.getElementById('EditBox').onkeydown = null;*/
-        Console.log('-----系统已断开连接-----');
+        var guestSessionId = $("#guestSessionId").val();
+        var customerSessionId = $("#customerSessionId").val();
+        //构建一个标准格式的JSON对象
+        var obj = {
+            type:"guest_offline",
+            fromSessionId:guestSessionId,
+            toSessionId:customerSessionId,
+            msg:txt
+        };
+        // 发送消息
+        // socket.send(obj);
+        Chat.socket.send(JSON.stringify(obj));
+        Chat.socket.close();
         console.log("-----系统已断开连接-----");
     };
 
     Chat.socket.onmessage = function (message) {
         var message = JSON.parse(message.data);
         if(message.code == 0){//通讯成功
-            if (message.type == -1) {//无在线客服
+            if (message.type == "no_customer") {//无在线客服
                 //跳转或显示留言页面
-
                 console.log("无在线客服");
                 return;
-            }
-
-            if(message.type == 0) { //系统消息（初始化用户信息）
+            }else if(message.type == "sys") { //系统消息（初始化用户信息）
                 $("#guestSessionId").val(message.guestSessionId);
                 $("#customerSessionId").val(message.customerSessionId);
                 var guestSessionId = $("#guestSessionId").val();
                 var customerSessionId = $("#customerSessionId").val();
                 //显示系统消息
-                // Console.log(customerName, customerPicture, msg, createtime, "odd");
+            }else if(message.type == "by_self" || message.type == "customer_send"){
+                addMessage(message);
             }
-            addMessage(message);
         }
     };
 });
 
 Chat.initialize = function () {
     if (window.location.protocol == 'http:') {
-        // Chat.connect('ws://' + window.location.host + '/runxinnong/websocket' + window.location.search);
         Chat.connect('ws://' + window.location.host + '/runxinnong/websocket/0/'+ipAddr);
     } else {
         Chat.connect('wss://' + window.location.host + '/runxinnong/websocket/0/'+ipAddr);
@@ -74,12 +81,12 @@ Chat.sendMessage = (function () {
         var guestSessionId = $("#guestSessionId").val();
         var customerSessionId = $("#customerSessionId").val();
         //构建一个标准格式的JSON对象
-        var obj = JSON.stringify({
-            type:"guestSend",
+        var obj = {
+            type:"guest_send",
             fromSessionId:guestSessionId,
             toSessionId:customerSessionId,
             msg:txt
-        });
+        };
         // 发送消息
         // socket.send(obj);
         Chat.socket.send(JSON.stringify(obj));
@@ -123,14 +130,12 @@ function heart_connect() {
     Chat.socket.send(JSON.stringify(message));
 }
 
-////监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
-// window.onbeforeunload = function(){ websocket.close(); };
 
-function addMessage(data){
+function addMessage(data,id){
     var box = $("#msgtmp").clone(); 	//复制一份模板，取名为box
     box.show();							//设置box状态为显示
     box.appendTo("#chatContent");		//把box追加到聊天面板中
-    box.find('[ff="nickname"]').html(data.name); //在box中设置昵称
+    box.find('[ff="nickname"]').html(data.name); //在box中设置昵称window.onbeforeunload=function(){
     if(!data.photo == null || !data.photo == ""){ //在box中设置头像
         box.find('[ff="photo"]').html(data.photo);
     }

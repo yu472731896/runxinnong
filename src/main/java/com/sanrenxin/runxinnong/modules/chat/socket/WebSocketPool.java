@@ -3,12 +3,10 @@ package com.sanrenxin.runxinnong.modules.chat.socket;
 import com.alibaba.fastjson.JSONObject;
 import com.sanrenxin.runxinnong.common.constant.Constant;
 import com.sanrenxin.runxinnong.common.utils.CacheUtils;
-import com.sanrenxin.runxinnong.common.utils.JedisUtils;
 import com.sanrenxin.runxinnong.modules.chat.entity.ChatMsg;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,7 +15,7 @@ import java.util.Set;
  * @create 2018-12-18 14:33
  */
 @Slf4j
-public class WebSocketPool {
+public class WebSocketPool implements java.io.Serializable {
 
     //保持连接的Map容器
     public static final Map<String, WebSocket> connections = new HashMap<String, WebSocket>(16);
@@ -37,73 +35,25 @@ public class WebSocketPool {
     }
 
     /**
-     * 获取所有的在线用户
-     */
-    public static Set<String> getOnlineUser(){
-        return connections.keySet();
-    }
-
-    /**
-     * 获取所有在线客服
-     */
-    public static Map<String, WebSocket> getAllOnlineCustom(){
-        return (Map<String, WebSocket>) CacheUtils.get(Constant.Chat.ONLINE_CUSTOM);
-    }
-
-    /**
-     * 获取所有在线顾客
-     */
-    public static Map<String, WebSocket> getAllOnlineGuest(){
-        return (Map<String, WebSocket>) CacheUtils.get(Constant.Chat.ONLINE_GUEST);
-    }
-
-    /**
-     * 添加在线客服
-     * @param webSocket 信息
-     * @author mh
-     * @create 2018-12-14 11:12
-     */
-    public static void addOnlineCustom(WebSocket webSocket){
-        //在线表中添加客服信息（redis）
-        Map<String, WebSocket> onlineCustomWebSocketMap = (Map<String, WebSocket>) CacheUtils.get(Constant.Chat.ONLINE_CUSTOM);
-        if(onlineCustomWebSocketMap == null){
-            onlineCustomWebSocketMap = new HashMap<String, WebSocket>();
-        }
-        if(!onlineCustomWebSocketMap.containsKey(webSocket.getSession().getId())){
-            onlineCustomWebSocketMap.put(webSocket.getSession().getId(),webSocket);
-        }
-        CacheUtils.put(Constant.Chat.ONLINE_CUSTOM,onlineCustomWebSocketMap);
-    }
-
-    /**
-     * 添加在线顾客
-     * @param webSocket 信息
-     * @author mh
-     * @create 2018-12-14 11:12
-     */
-    public static void addOnlineGuest(WebSocket webSocket){
-        //在线表中添加顾客信息（redis）
-        Map<String, WebSocket> onlinGuestWebSocketMap = (Map<String, WebSocket>) CacheUtils.get(Constant.Chat.ONLINE_GUEST);
-        if(onlinGuestWebSocketMap == null){
-            onlinGuestWebSocketMap = new HashMap<String, WebSocket>();
-        }
-        if( !onlinGuestWebSocketMap.containsKey(webSocket.getSession().getId())){
-            onlinGuestWebSocketMap.put(webSocket.getSession().getId(),webSocket);
-        }
-        CacheUtils.put(Constant.Chat.ONLINE_GUEST,onlinGuestWebSocketMap);
-    }
-
-    /**
      * 移除连接
      * @param sessionId 会话id
      */
     public static void removeWebSocket(String sessionId){
         WebSocket webSocket = connections.get(sessionId);
         //移除连接
+        removeUserInfo(webSocket);
         log.info("user:" + webSocket.getSession().getId() + ",name:" + webSocket.getName() + " exit..");
         connections.remove(sessionId);
     }
 
+    /**
+     * 根据sessionId 获取websocket
+     * @param sessionId
+     * @return websocket
+     */
+    public static WebSocket getWebSocketBySessionId(String sessionId){
+        return connections.get(sessionId);
+    }
     /**
      * 给指定用户发送消息
      * @param sessionId 指定用户的sessionId
@@ -157,6 +107,77 @@ public class WebSocketPool {
         }catch (Exception e){
             e.printStackTrace();
             log.error("向所有用户发送消息 method: sendMessage-->"+e.toString());
+        }
+    }
+
+    /**
+     * 获取所有的在线用户
+     */
+    public static Set<String> getOnlineUser(){
+        return connections.keySet();
+    }
+
+    /**
+     * 获取所有在线客服
+     */
+    public static Map<String, WebSocket> getAllOnlineCustomer(){
+        return (Map<String, WebSocket>) CacheUtils.get(Constant.Chat.ONLINE_CUSTOM);
+    }
+
+    /**
+     * 获取所有在线顾客
+     */
+    public static Map<String, WebSocket> getAllOnlineGuest(){
+        return (Map<String, WebSocket>) CacheUtils.get(Constant.Chat.ONLINE_GUEST);
+    }
+
+    /**
+     * 添加在线客服
+     * @param webSocket 信息
+     * @author mh
+     * @create 2018-12-14 11:12
+     */
+    public static void addOnlineCustom(WebSocket webSocket){
+        //在线表中添加客服信息（redis）
+        Map<String, WebSocket> onlineCustomWebSocketMap = (Map<String, WebSocket>) CacheUtils.get(Constant.Chat.ONLINE_CUSTOM);
+        if(onlineCustomWebSocketMap == null){
+            onlineCustomWebSocketMap = new HashMap<String, WebSocket>();
+        }
+        if(!onlineCustomWebSocketMap.containsKey(webSocket.getSession().getId())){
+            onlineCustomWebSocketMap.put(webSocket.getSession().getId(),webSocket);
+        }
+        CacheUtils.put(Constant.Chat.ONLINE_CUSTOM,onlineCustomWebSocketMap);
+    }
+
+    /**
+     * 添加在线顾客
+     * @param webSocket 信息
+     * @author mh
+     * @create 2018-12-14 11:12
+     */
+    public static void addOnlineGuest(WebSocket webSocket){
+        //在线表中添加顾客信息（redis）
+        Map<String, WebSocket> onlinGuestWebSocketMap = (Map<String, WebSocket>) CacheUtils.get(Constant.Chat.ONLINE_GUEST);
+        if(onlinGuestWebSocketMap == null){
+            onlinGuestWebSocketMap = new HashMap<String, WebSocket>();
+        }
+        if( !onlinGuestWebSocketMap.containsKey(webSocket.getSession().getId())){
+            onlinGuestWebSocketMap.put(webSocket.getSession().getId(),webSocket);
+        }
+        CacheUtils.put(Constant.Chat.ONLINE_GUEST,onlinGuestWebSocketMap);
+    }
+
+    /**
+     * 缓存中移除用户信息
+     */
+    private static void removeUserInfo(WebSocket webSocket){
+        //移除连接
+        if(webSocket.getUserType().equals("0")){//顾客
+            Map<String, WebSocket> onlinGuestWebSocketMap = getAllOnlineGuest();
+            onlinGuestWebSocketMap.remove(webSocket.getSession().getId());
+        }else{
+            Map<String, WebSocket> onlineCustomWebSocketMap = getAllOnlineCustomer();
+            onlineCustomWebSocketMap.remove(webSocket.getSession().getId());
         }
     }
 

@@ -27,7 +27,7 @@ public class ChatMsg {
     private String code;
 
     /**
-     * 消息类型 guest_send:顾客端发送消息，cuestom_send:客服端发送消息,heart_connect:心跳
+     * 消息类型 guest_send:顾客端发送消息，customer_send:客服端发送消息,heart_connect:心跳,by_self:自己返回消息
      */
     private String type;
 
@@ -46,7 +46,7 @@ public class ChatMsg {
      * 消息来自sessionId
      * sendTo
      */
-    private String fromSessionID;
+    private String fromSessionId;
 
     /**
      * 消息时间
@@ -56,14 +56,16 @@ public class ChatMsg {
     public static ChatMsg successMsg(String msg){
         ChatMsg chatMsg = new ChatMsg();
         chatMsg.setDateTime(DateUtils.getDateTime());
-        chatMsg.setMsg(SUCCESS_CODE);
+        chatMsg.setCode(SUCCESS_CODE);
+        chatMsg.setMsg(msg);
         return chatMsg;
     }
 
     public static ChatMsg errorMsg(String msg){
         ChatMsg chatMsg = new ChatMsg();
         chatMsg.setDateTime(DateUtils.getDateTime());
-        chatMsg.setMsg(ERROR_CODE);
+        chatMsg.setCode(ERROR_CODE);
+        chatMsg.setMsg(msg);
         return chatMsg;
     }
 }

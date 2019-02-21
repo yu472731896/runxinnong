@@ -20,46 +20,17 @@
     <script type="text/javascript" charset="utf-8" src="${ctxStatic}/umeditor/umeditor.config.js"></script>
     <script type="text/javascript" charset="utf-8" src="${ctxStatic}/umeditor/umeditor.min.js"></script>
     <script type="text/javascript" src="${ctxStatic}/umeditor/lang/zh-cn/zh-cn.js"></script>
-    <script type="text/javascript">var ipAddr='${ipAddr}';</script>
-    <script type="text/javascript" src="${ctxStatic}/chat/js/guest.js?v=0.1"></script>
 </head>
 <body>
 <div data-role="page" id="main" style="overflow-y:auto;">
     <div data-role="content" class="container" role="main">
         <input type="hidden" id="guestSessionId" value=""/>
         <input type="hidden" id="customerSessionId" value=""/>
-        <%--<div id="console-container">
-            <div id="console">
-                <ul class="content-reply-box mg10">
-
-                </ul>
-            </div>
-        </div>--%>
-
-        <!--  -->
-        <%--<div id="footer" style="margin-top:2.5em;">
-            <nav class="navbar navbar-default navbar-fixed-bottom">
-                <div class="navbar-inner navbar-content-center">
-                    <ul>
-                        <li class="col-xs-9" style="margin-top:0.5em;margin-bottom:0.5em;">
-                            <div class="input-group-lg">
-                                <input type="text" class="form-control" id="chat">
-                            </div>
-                        </li>
-                        <li class="col-xs-3" style="margin-top:1em;">
-                            <button type="button" class="btn btn-success send-button" onclick="sendMsg();"
-                                    style="width: 100%;">发送
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-        </div>--%>
-
         <div id="main">
             <!-- 聊天内容展示区域 -->
             <div id="ChatBox" class="am-g am-g-fixed" >
                 <div class="am-u-lg-12" style="height:400px;border:1px solid #999;overflow-y:scroll;">
+
                     <ul id="chatContent" class="am-comments-list am-comments-list-flip">
                         <li id="msgtmp" class="am-comment" style="display:none;">
                             <a href="">
@@ -76,6 +47,7 @@
                             </div>
                         </li>
                     </ul>
+
                 </div>
             </div>
             <!-- 聊天内容发送区域 -->
@@ -89,26 +61,20 @@
     </div>
 </div>
 <script type="text/javascript">
-    $(function(){
-        //实例化编辑器
-        var um = UM.getEditor('myEditor',{
-            initialContent:"请输入聊天信息...",
-            autoHeightEnabled:false,
-            toolbar:[
-                'source | undo redo | bold italic underline strikethrough | superscript subscript | forecolor backcolor | removeformat |',
-                'insertorderedlist insertunorderedlist | selectall cleardoc paragraph | fontfamily fontsize' ,
-                '| justifyleft justifycenter justifyright justifyjustify |',
-                'link unlink | emotion image video  | map'
-            ]
-        });
-
-        /*toolbar:[
-                'source | undo redo | bold italic underline strikethrough | superscript subscript | forecolor backcolor | removeformat |',
-                'insertorderedlist insertunorderedlist | selectall cleardoc paragraph | fontfamily fontsize' ,
-                '| justifyleft justifycenter justifyright justifyjustify |',
-                'link unlink | emotion image video  | map'
-            ]*/
+    //记录IP地址
+    var ipAddr='${ipAddr}';
+    //实例化编辑器
+    var um = UM.getEditor('myEditor',{
+        initialContent:"",
+        autoHeightEnabled:false,
+        toolbar:[
+            '',
+            '',
+            '',
+            'emotion image video'
+        ]
     });
 </script>
+<script type="text/javascript" src="${ctxStatic}/chat/js/guest.js?v=0.1"></script>
 </body>
 </html>

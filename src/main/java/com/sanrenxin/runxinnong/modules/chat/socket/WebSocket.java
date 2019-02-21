@@ -3,7 +3,6 @@ package com.sanrenxin.runxinnong.modules.chat.socket;
 import com.alibaba.fastjson.JSONObject;
 import com.sanrenxin.runxinnong.common.constant.Constant;
 import com.sanrenxin.runxinnong.common.utils.AddressUtils;
-import com.sanrenxin.runxinnong.common.utils.CacheUtils;
 import com.sanrenxin.runxinnong.common.utils.DateUtils;
 import com.sanrenxin.runxinnong.common.utils.IdGen;
 import com.sanrenxin.runxinnong.common.utils.RandomUtils;
@@ -11,6 +10,7 @@ import com.sanrenxin.runxinnong.common.utils.SpringContextHolder;
 import com.sanrenxin.runxinnong.common.utils.StringUtils;
 import com.sanrenxin.runxinnong.modules.chat.entity.ChatInitMsg;
 import com.sanrenxin.runxinnong.modules.chat.entity.ChatMsg;
+import com.sanrenxin.runxinnong.modules.chat.entity.CtOnlineGuest;
 import com.sanrenxin.runxinnong.modules.run.dao.ChatInfoDao;
 import com.sanrenxin.runxinnong.modules.run.entity.ChatInfo;
 import com.sanrenxin.runxinnong.modules.sys.entity.User;
@@ -28,8 +28,10 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,7 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @ServerEndpoint(value = "/websocket/{userType}/{ipAddr}",configurator = GetHttpSessionConfigurator.class)
 @Slf4j
-public class WebSocket {
+public class WebSocket  implements Serializable {
 
     private static ChatInfoDao chatInfoDao = SpringContextHolder.getBean(ChatInfoDao.class);
     private final static AtomicInteger GUEST_IDS = new AtomicInteger(1);
@@ -69,13 +71,6 @@ public class WebSocket {
      * 收到消息后调用的方法
      * @param message 客户端发送过来的消息
      * @param session 可选的参数
-     *
-     *     {
-     *         fromSessionId："1" ,
-     *         toSessionId："2" ,
-     *         msgType:"guestSend" ,
-     *         msg:"内容"
-     *     }
      */
     @OnMessage
     public void onMessage(String message, Session session) {
@@ -84,12 +79,48 @@ public class WebSocket {
 
         }else{
             //判断消息类型  顾客或者客服类型
-            if(receiveMsg.getType().equals(Constant.Chat.TYPE_GUEST_SEND) ||
-                    receiveMsg.getType().equals(Constant.Chat.TYPE_CUESTOM_SEND)){
-                WebSocketPool.sendMessageToSocket(receiveMsg.getToSessionId(),ChatMsg.successMsg(receiveMsg.getMsg()));
+            if(receiveMsg.getType().equals(Constant.Chat.TYPE_CUSTOMER_SEND)){
+                //向游客发送消息
+                ChatMsg chatMsg = new ChatMsg();
+                chatMsg.setType("customer_send");
+                chatMsg.setMsg(receiveMsg.getMsg());
+                chatMsg.setDateTime(DateUtils.getDateTime());
+                chatMsg.setCode("0");
+                WebSocketPool.sendMessageToSocket(receiveMsg.getToSessionId(),JSONObject.toJSONString(chatMsg));
+
+                //向自己发送放回消息
+                ChatMsg chatMsgForSelf = new ChatMsg();
+                chatMsgForSelf.setCode("0");
+                chatMsgForSelf.setType("by_self");
+                chatMsgForSelf.setDateTime(DateUtils.getDateTime());
+                chatMsgForSelf.setToSessionId(receiveMsg.getToSessionId());
+                chatMsgForSelf.setMsg(receiveMsg.getMsg());
+                WebSocketPool.sendMessageToSocket(receiveMsg.getFromSessionId(),JSONObject.toJSONString(chatMsgForSelf));
+            }else if(receiveMsg.getType().equals(Constant.Chat.TYPE_GUEST_SEND) ){
+                //向客服发送消息
+                ChatMsg chatMsg = new ChatMsg();
+                chatMsg.setCode("0");
+                chatMsg.setType("guest_send");
+                chatMsg.setDateTime(DateUtils.getDateTime());
+                chatMsg.setFromSessionId(receiveMsg.getFromSessionId());
+                chatMsg.setMsg(receiveMsg.getMsg());
+                WebSocketPool.sendMessageToSocket(receiveMsg.getToSessionId(),JSONObject.toJSONString(chatMsg));
+                //向自己发送消息
+                ChatMsg chatMsgForSelf = new ChatMsg();
+                chatMsgForSelf.setCode(Constant.Chat.CODE_SUCCESS);
+                chatMsgForSelf.setType("by_self");
+                chatMsgForSelf.setMsg(receiveMsg.getMsg());
+                chatMsgForSelf.setDateTime(DateUtils.getDateTime());
+                WebSocketPool.sendMessageToSocket(receiveMsg.getFromSessionId(),JSONObject.toJSONString(chatMsgForSelf));
+            }else if(receiveMsg.getType().equals(Constant.Chat.TYPE_guest_offline)){
+                //向自己发送消息
+                ChatMsg chatMsg = new ChatMsg();
+                chatMsg.setType(Constant.Chat.TYPE_guest_offline);
+                chatMsg.setDateTime(DateUtils.getDateTime());
+                chatMsg.setFromSessionId(receiveMsg.getFromSessionId());
+                WebSocketPool.sendMessageToSocket(receiveMsg.getToSessionId(),JSONObject.toJSONString(chatMsg));
             }
         }
-
     }
 
     /**
@@ -112,7 +143,7 @@ public class WebSocket {
 
     public void sendMessage(Session session,String message) throws IOException {
         session.getBasicRemote().sendText(message);
-        this.session.getAsyncRemote().sendText(message);
+//        this.session.getAsyncRemote().sendText(message);
     }
 
     /**
@@ -140,7 +171,19 @@ public class WebSocket {
                 initMsg.setDate(new Date());
                 //获取当前所有在线游客列表
                 Map<String, WebSocket> allOnlineGuest = WebSocketPool.getAllOnlineGuest();
-                initMsg.setData(allOnlineGuest);
+                if(allOnlineGuest != null && !allOnlineGuest.isEmpty()){
+                    List<CtOnlineGuest> onlineGuestList = new ArrayList<>();
+                    CtOnlineGuest onlineGuest = null;
+                    for(String key : allOnlineGuest.keySet()){
+                        onlineGuest = new CtOnlineGuest();
+                        onlineGuest.setSessionId(allOnlineGuest.get(key).getSession().getId());
+                        onlineGuest.setUserName(allOnlineGuest.get(key).getName());
+                        onlineGuestList.add(onlineGuest);
+                    }
+                    initMsg.setData(onlineGuestList);
+                }
+                initMsg.setType("customer_init");
+                initMsg.setCode("0");
                 //将游客信息发送给客服
                 WebSocketPool.sendMessageToSocket(session.getId(),JSONObject.toJSONString(initMsg));
 
@@ -165,7 +208,7 @@ public class WebSocket {
                 this.name = address + RandomStringUtils.randomNumeric(5);
                 WebSocketPool.updateWebSocket(this);
 
-                Map<String, WebSocket> onlineCustomMap = WebSocketPool.getAllOnlineCustom();
+                Map<String, WebSocket> onlineCustomMap = WebSocketPool.getAllOnlineCustomer();
                 if(onlineCustomMap != null && !onlineCustomMap.isEmpty()){
                     //随机指定一名在线客服人员接通连线
                     WebSocket customerSocket = RandomUtils.getRandomValueFromMap(onlineCustomMap);
@@ -173,7 +216,7 @@ public class WebSocket {
                     // xxxx 客服正在建立连接请稍等.....  发送等待状态，直到客服进入
                     ChatInitMsg msgToGuest = new ChatInitMsg();
                     msgToGuest.setCode("0");
-                    msgToGuest.setType("0");
+                    msgToGuest.setType(Constant.Chat.TYPE_SYS);
                     msgToGuest.setMsg("客服正在建立连接请稍等.....");
                     msgToGuest.setGuestSessionId(session.getId());
                     msgToGuest.setCustomerSessionId(customerSocket.getSession().getId());
@@ -187,6 +230,13 @@ public class WebSocket {
                     msgToCustom.setMsg("顾客进行呼叫.....");
                     msgToCustom.setGuestSessionId(session.getId());
                     msgToCustom.setCustomerSessionId(customerSocket.getSession().getId());
+
+                    CtOnlineGuest onlineGuest = new CtOnlineGuest();
+                    WebSocket webSocket = WebSocketPool.getWebSocketBySessionId(session.getId());
+                    onlineGuest.setSessionId(session.getId());
+                    onlineGuest.setUserName(webSocket.getName());
+
+                    msgToCustom.setData(JSONObject.toJSON(onlineGuest));
                     WebSocketPool.sendMessageToSocket(customerSocket.getSession().getId(),JSONObject.toJSONString(msgToCustom));
 
                 }else{//当前无客服在线
