@@ -28,15 +28,21 @@
             $.each($imgs, function (index, node) {
                 $(node).removeAttr("width").removeAttr("height");
 
-//                if (node.width > editor.options.initialFrameWidth) {
-//                    me.scale(node, editor.options.initialFrameWidth -
-//                        parseInt($(editor.body).css("padding-left"))  -
-//                        parseInt($(editor.body).css("padding-right")));
-//                }
+                /**放开图片尺寸计算计算 author mh date 20190215 start**/
+               if (node.width > editor.options.initialFrameWidth) {
+                   me.scale(node, editor.options.initialFrameWidth -
+                       parseInt($(editor.body).css("padding-left"))  -
+                       parseInt($(editor.body).css("padding-right")));
+               }
+               /**放开图片计算 end **/
 
                 return arr.push({
                     _src: node.src,
-                    src: node.src
+                    src: node.src,
+                    /*添加图片计算 start */
+                    width: node.width,
+                    height: node.height
+                    /*添加图片计算 end */
                 });
             });
 

@@ -73,5 +73,4 @@ public class FrontGuestbookController extends BaseController{
 //		}
 		return "redirect:"+Global.getFrontPath()+"/guestbook";
 	}
-	
 }
