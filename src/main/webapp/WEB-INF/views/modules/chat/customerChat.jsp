@@ -16,7 +16,12 @@
     <script type="text/javascript" charset="utf-8" src="${ctxStatic}/umeditor/umeditor.min.js"></script>
     <script type="text/javascript" src="${ctxStatic}/umeditor/lang/zh-cn/zh-cn.js"></script>
     <link rel="stylesheet" type="text/css" href="${ctxStatic}/chat/css/customer.css?v=0.1"/>
-
+    <style>
+        img{
+            width:100%;
+            height:inherit;
+        }
+    </style>
 </head>
 <body class="keBody">
 <input type="hidden" id="customerSessionId" value=""/>

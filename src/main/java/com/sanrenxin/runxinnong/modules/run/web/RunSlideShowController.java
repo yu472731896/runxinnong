@@ -38,7 +38,7 @@ public class RunSlideShowController extends BaseController {
 
 	@Autowired
 	private RunSlideShowService runSlideShowService;
-	
+
 	@ModelAttribute
 	public RunSlideShow get(@RequestParam(required=false) String id) {
 		RunSlideShow entity = null;
@@ -50,11 +50,11 @@ public class RunSlideShowController extends BaseController {
 		}
 		return entity;
 	}
-	
+
 	@RequiresPermissions("run:runSlideShow:view")
 	@RequestMapping(value = {"list", ""})
 	public String list(RunSlideShow runSlideShow, HttpServletRequest request, HttpServletResponse response, Model model) {
-		Page<RunSlideShow> page = runSlideShowService.findPage(new Page<RunSlideShow>(request, response), runSlideShow); 
+		Page<RunSlideShow> page = runSlideShowService.findPage(new Page<RunSlideShow>(request, response), runSlideShow);
 		model.addAttribute("page", page);
 		return "modules/run/runSlideShowList";
 	}
@@ -76,7 +76,7 @@ public class RunSlideShowController extends BaseController {
 		addMessage(redirectAttributes, "保存轮播图成功");
 		return "redirect:"+Global.getAdminPath()+"/run/runSlideShow/?repage";
 	}
-	
+
 	@RequiresPermissions("run:runSlideShow:edit")
 	@RequestMapping(value = "delete")
 	public String delete(RunSlideShow runSlideShow, RedirectAttributes redirectAttributes) {
@@ -85,20 +85,5 @@ public class RunSlideShowController extends BaseController {
 		return "redirect:"+Global.getAdminPath()+"/run/runSlideShow/?repage";
 	}
 
-	///////////////////////////////////////////////////////////////
-	///////////////////////////////////////////////////////////////
-	///////////////////////////////////////////////////////////////
-
-	/**
-	 * 轮播图接口
-	 */
-	@RequestMapping(value="getRunSlideShowList")
-	@ResponseBody
-	public ResultBean getRunSlideShowList(){
-		ResultBean resultBean = new ResultBean();
-		List<RunSlideShow> runSlideShowList = runSlideShowService.findList(new RunSlideShow());
-		resultBean.setData(runSlideShowList);
-		return ResultBean.getSuccess(runSlideShowList);
-	}
 
 }

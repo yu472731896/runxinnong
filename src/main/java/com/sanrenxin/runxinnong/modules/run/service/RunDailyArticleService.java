@@ -5,6 +5,7 @@ package com.sanrenxin.runxinnong.modules.run.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,9 @@ import com.sanrenxin.runxinnong.modules.run.dao.RunDailyArticleDao;
 @Service
 @Transactional(readOnly = true)
 public class RunDailyArticleService extends CrudService<RunDailyArticleDao, RunDailyArticle> {
+
+    @Autowired
+    private RunDailyArticleDao runDailyArticleDao;
 
 	public RunDailyArticle get(String id) {
 		return super.get(id);
@@ -44,11 +48,24 @@ public class RunDailyArticleService extends CrudService<RunDailyArticleDao, RunD
 		super.delete(runDailyArticle);
 	}
 
-	@Transactional(readOnly = false)
-	public void test ()throws Exception{
-
-		if(1==1){
-			throw new Exception("cuo");
+    /**
+     * 获取每日一文数据
+     * @param title
+     * @param pageNo
+     * @param rows
+     * @param orderType
+     * @param orderField
+     * @return List
+     * @author YMH
+     * @date 2019-03-07
+     */
+	public List<RunDailyArticle> getRunDailyArticleList(String title, Integer pageNo, Integer rows,
+														String orderType, String orderField){
+		if(null == pageNo || null == rows ){
+			pageNo = 1;
+			rows = 10;
 		}
-	}
+        return runDailyArticleDao.getRunDailyArticleList(title,pageNo,rows,orderType,orderField);
+    }
+
 }

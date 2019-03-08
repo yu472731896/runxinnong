@@ -20,6 +20,12 @@
     <script type="text/javascript" charset="utf-8" src="${ctxStatic}/umeditor/umeditor.config.js"></script>
     <script type="text/javascript" charset="utf-8" src="${ctxStatic}/umeditor/umeditor.min.js"></script>
     <script type="text/javascript" src="${ctxStatic}/umeditor/lang/zh-cn/zh-cn.js"></script>
+    <style>
+        img{
+            width:100%;
+            height:inherit;
+        }
+    </style>
 </head>
 <body>
 <div data-role="page" id="main" style="overflow-y:auto;">

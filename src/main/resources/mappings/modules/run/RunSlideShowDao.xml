@@ -114,5 +114,47 @@
 			del_flag = #{DEL_FLAG_DELETE}
 		WHERE id = #{id}
 	</update>
+
+
+	<!--客户端方法-->
+	<!--客户端方法-->
+	<!--客户端方法-->
+	<select id="getRunSlideShowList" resultType="RunSlideShow">
+		SELECT
+		<include refid="runSlideShowColumns"/>
+		FROM run_slide_show a
+		<include refid="runSlideShowJoins"/>
+		<where>
+			a.del_flag = 0
+			<if test="title != null and title != ''">
+				AND a.title LIKE
+				<if test="dbName == 'oracle'">'%'||#{title}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{title}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{title},'%')</if>
+			</if>
+		</where>
+		ORDER BY
+		<choose>
+			<when test="orderField != null and orderField != ''">
+				${orderField}
+			</when>
+			<otherwise>
+				UPDATE_DATE
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="orderType != null and orderType != ''">
+				<if test="orderType == '0'.toString">
+					ASC
+				</if>
+				<if test="orderType == '1'.toString">
+					DESC
+				</if>
+			</when>
+		</choose>
+		<if test="pageNo != null and rows != null">
+			<![CDATA[LIMIT ${(pageNo-1)*rows},${rows}]]>
+		</if>
+	</select>
 	
 </mapper>

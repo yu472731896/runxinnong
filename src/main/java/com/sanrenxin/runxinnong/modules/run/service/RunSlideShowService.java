@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.sanrenxin.runxinnong.common.utils.Encodes;
 import com.sanrenxin.runxinnong.common.utils.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,9 @@ import com.sanrenxin.runxinnong.modules.run.dao.RunSlideShowDao;
 @Service
 @Transactional(readOnly = true)
 public class RunSlideShowService extends CrudService<RunSlideShowDao, RunSlideShow> {
+
+	@Autowired
+	private RunSlideShowDao runSlideShowDao;
 
 	public RunSlideShow get(String id) {
 		return super.get(id);
@@ -49,5 +53,23 @@ public class RunSlideShowService extends CrudService<RunSlideShowDao, RunSlideSh
 	public void delete(RunSlideShow runSlideShow) {
 		super.delete(runSlideShow);
 	}
-	
+
+	/**
+	 * 获取轮播图列表
+	 * @param title
+	 * @param pageNo
+	 * @param rows
+	 * @param orderType
+	 * @param orderField
+	 * @return List
+	 * @author YMH
+	 * @date 2019-03-07
+	 */
+    public List<RunSlideShow> getRunSlideShowList(String title, Integer pageNo, Integer rows, String orderType, String orderField) {
+    	if(null == pageNo || null == rows ){
+			pageNo = 1;
+			rows = 6;
+		}
+		return runSlideShowDao.getRunSlideShowList(title,pageNo,rows,orderType,orderField);
+    }
 }

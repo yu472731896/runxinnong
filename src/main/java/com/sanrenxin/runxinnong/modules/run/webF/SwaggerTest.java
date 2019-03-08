@@ -13,22 +13,32 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 @RequestMapping("/userController")
-@Api(tags = "二：用户信息") //swagger分类标题注解
+@Api(tags = "swagger测试") //swagger分类标题注解 projectName/swagger-ui.html
 public class SwaggerTest {
 
-    @RequestMapping(value = "/listCompound", method = RequestMethod.GET)
-    @ResponseBody
-    @ApiImplicitParam(value = "测试参数",name = "测试参数")
-    @ApiOperation(httpMethod = "GET", value = "个人信息")//swagger 当前接口注解
-    public String listCompound(
-            @ApiParam(required = true, name = "start", value = "start") int start,
-            int limit,
-            @ApiParam(required = false, name = "userName", value = "名称模糊查询") String userName) {
+    /**
+     * @param start
+     * @param userName
+     * @return
+     */
+    @ApiOperation(httpMethod = "POST", value = "个人信息")//swagger 当前接口注解
+    @RequestMapping(value = "/listCompound", method = RequestMethod.POST)
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "start", value = "start",required = true,dataType = "int",paramType = "query"),
+            @ApiImplicitParam(name = "userName", value = "名称模糊查询",required = false)
+    })
+    public Result listCompound(int start,String userName) {
         Result result = new Result();
         result.setCode(0);
-        return JSONObject.toJSONString(result);
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("start",start);
+        jsonObject.put("userName",userName);
+        result.setData(jsonObject);
+        return result;
     }
 }
