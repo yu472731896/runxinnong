@@ -4,6 +4,7 @@
 package com.sanrenxin.runxinnong.common.utils;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -168,6 +169,25 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 		long beforeTime = before.getTime();
 		long afterTime = after.getTime();
 		return (afterTime - beforeTime) / (1000 * 60 * 60 * 24);
+	}
+
+	/**
+	 * 当前的时间
+	 * @return
+	 */
+	public static String getTimeStamp() {
+		return String.valueOf(System.currentTimeMillis() / 1000);
+	}
+
+	public static Date timestampToDate(String str_num) {
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		if (str_num.length() == 13) {
+			String date = format.format(new Date(Long.parseLong(str_num)));
+			return parseDate(date);
+		} else {
+			String date = format.format(new Date(Integer.parseInt(str_num) * 1000L));
+			return parseDate(date);
+		}
 	}
 	
 	/**

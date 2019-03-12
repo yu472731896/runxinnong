@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sanrenxin.runxinnong.modules.wx.dao.WxArticleDao">
+    
+	<sql id="wxArticleColumns">
+		a.id AS "id",
+		a.title AS "title",
+		a.author AS "author",
+		a.content AS "content",
+		a.digest AS "digest",
+		a.show_cover_pic AS "showCoverPic",
+		a.url AS "url",
+		a.thumb_media_id AS "thumbMediaId",
+		a.content_source_url AS "contentSourceUrl",
+		a.media_id AS "mediaId",
+		a.news_id AS "newsId",
+		a.news_index AS "newsIndex",
+		a.pic_url AS "picUrl",
+		a.need_open_comment AS "needOpenComment",
+		a.only_fans_can_comment AS "onlyFansCanComment",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="wxArticleJoins">
+	</sql>
+    
+	<select id="get" resultType="WxArticle">
+		SELECT 
+			<include refid="wxArticleColumns"/>
+		FROM wx_article a
+		<include refid="wxArticleJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WxArticle">
+		SELECT 
+			<include refid="wxArticleColumns"/>
+		FROM wx_article a
+		<include refid="wxArticleJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="title != null and title != ''">
+				AND a.title LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{title},'%')</if>
+			</if>
+			<if test="newsId != null and newsId != ''">
+				AND a.news_id = #{newsId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.news_index ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="WxArticle">
+		SELECT 
+			<include refid="wxArticleColumns"/>
+		FROM wx_article a
+		<include refid="wxArticleJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="newsId != null and newsId != ''">
+				AND a.news_id = #{newsId}
+			</if>
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.news_index ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO wx_article(
+			id,
+			title,
+			author,
+			content,
+			digest,
+			show_cover_pic,
+			url,
+			thumb_media_id,
+			content_source_url,
+			media_id,
+			news_id,
+			news_index,
+			pic_url,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{title},
+			#{author},
+			#{content},
+			#{digest},
+			#{showCoverPic},
+			#{url},
+			#{thumbMediaId},
+			#{contentSourceUrl},
+			#{mediaId},
+			#{newsId},
+			#{newsIndex},
+			#{picUrl},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE wx_article SET 	
+			title = #{title},
+			author = #{author},
+			content = #{content},
+			digest = #{digest},
+			show_cover_pic = #{showCoverPic},
+			url = #{url},
+			thumb_media_id = #{thumbMediaId},
+			content_source_url = #{contentSourceUrl},
+			media_id = #{mediaId},
+			news_id = #{newsId},
+			news_index = #{newsIndex},
+			pic_url = #{picUrl},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<insert id="insertByBatch" parameterType="java.util.List">
+      INSERT INTO wx_article(
+			title,
+			author,
+			content,
+			digest,
+			show_cover_pic,
+			url,
+			thumb_media_id,
+			content_source_url,
+			media_id,
+			news_id,
+			news_index,
+			pic_url,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		)
+       values
+       <foreach collection="list" item="item" index="index" separator=",">
+           (
+           #{item.title},
+			#{item.author},
+			#{item.content},
+			#{item.digest},
+			#{item.showCoverPic},
+			#{item.url},
+			#{item.thumbMediaId},
+			#{item.contentSourceUrl},
+			#{item.mediaId},
+			#{item.newsId},
+			#{item.newsIndex},
+			#{item.picUrl},
+			#{item.createBy.id},
+			#{item.createDate},
+			#{item.updateBy.id},
+			#{item.updateDate},
+			#{item.remarks},
+			#{item.delFlag}
+			)
+       </foreach>
+    </insert>
+	<select id="getByNewsId" resultType="WxArticle" parameterType="java.lang.Integer">
+		SELECT 
+			<include refid="wxArticleColumns"/>
+		FROM wx_article a
+		<include refid="wxArticleJoins"/>
+		<where>
+			 news_id = ${_parameter}
+		</where>		
+	</select>
+	<update id="delete">
+		UPDATE wx_article SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

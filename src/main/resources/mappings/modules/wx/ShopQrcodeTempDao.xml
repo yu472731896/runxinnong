@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sanrenxin.runxinnong.modules.wx.dao.ShopQrcodeTempDao">
+    
+	<sql id="shopQrcodeTempColumns">
+		a.id AS "id",
+		a.bgimage_url AS "bgimageUrl",
+		a.qrcode_x AS "qrcodeX",
+		a.qrcode_y AS "qrcodeY",
+		a.qrcode_width AS "qrcodeWidth",
+		a.qrcode_height AS "qrcodeHeight",
+		a.text_x AS "textX",
+		a.text_y AS "textY",
+		a.text_width AS "textWidth",
+		a.text_height AS "textHeight",
+		a.text_color AS "textColor",
+		a.text_size AS "textSize",
+		a.text_type AS "textType",
+		a.head_url AS "headUrl",
+		a.head_width AS "headWidth",
+		a.head_height AS "headHeight",
+		a.head_x AS "headX",
+		a.head_y AS "headY",
+		a.nick_name AS "nickName",
+		a.nick_height AS "nickHeight",
+		a.nick_width AS "nickWidth",
+		a.nick_x AS "nickX",
+		a.nick_y AS "nickY",
+		a.qrimage_url AS "qrimageUrl"
+	</sql>
+	
+	<sql id="shopQrcodeTempJoins">
+	</sql>
+    
+	<select id="get" resultType="ShopQrcodeTemp">
+		SELECT 
+			<include refid="shopQrcodeTempColumns"/>
+		FROM shop_qrcode_temp a
+		<include refid="shopQrcodeTempJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ShopQrcodeTemp">
+		SELECT 
+			<include refid="shopQrcodeTempColumns"/>
+		FROM shop_qrcode_temp a
+		<include refid="shopQrcodeTempJoins"/>
+		<where>
+			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ShopQrcodeTemp">
+		SELECT 
+			<include refid="shopQrcodeTempColumns"/>
+		FROM shop_qrcode_temp a
+		<include refid="shopQrcodeTempJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO shop_qrcode_temp(
+			id,
+			bgimage_url,
+			qrcode_x,
+			qrcode_y,
+			qrcode_width,
+			qrcode_height,
+			text_x,
+			text_y,
+			text_width,
+			text_height,
+			text_color,
+			text_size,
+			text_type,
+			head_url,
+			head_width,
+			head_height,
+			head_x,
+			head_y,
+			nick_name,
+			nick_height,
+			nick_width,
+			nick_x,
+			nick_y,
+			qrimage_url
+		) VALUES (
+			#{id},
+			#{bgimageUrl},
+			#{qrcodeX},
+			#{qrcodeY},
+			#{qrcodeWidth},
+			#{qrcodeHeight},
+			#{textX},
+			#{textY},
+			#{textWidth},
+			#{textHeight},
+			#{textColor},
+			#{textSize},
+			#{textType},
+			#{headUrl},
+			#{headWidth},
+			#{headHeight},
+			#{headX},
+			#{headY},
+			#{nickName},
+			#{nickHeight},
+			#{nickWidth},
+			#{nickX},
+			#{nickY},
+			#{qrimageUrl}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE shop_qrcode_temp SET 	
+			bgimage_url = #{bgimageUrl},
+			qrcode_x = #{qrcodeX},
+			qrcode_y = #{qrcodeY},
+			qrcode_width = #{qrcodeWidth},
+			qrcode_height = #{qrcodeHeight},
+			text_x = #{textX},
+			text_y = #{textY},
+			text_width = #{textWidth},
+			text_height = #{textHeight},
+			text_color = #{textColor},
+			text_size = #{textSize},
+			text_type = #{textType},
+			head_url = #{headUrl},
+			head_width = #{headWidth},
+			head_height = #{headHeight},
+			head_x = #{headX},
+			head_y = #{headY},
+			nick_name = #{nickName},
+			nick_height = #{nickHeight},
+			nick_width = #{nickWidth},
+			nick_x = #{nickX},
+			nick_y = #{nickY},
+			qrimage_url = #{qrimageUrl}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM shop_qrcode_temp
+		WHERE id = #{id}
+	</update>
+	
+	<select id="getMaxId" resultType="int">
+		select COALESCE( max(id),0) from shop_qrcode_temp
+	</select>
+	
+</mapper>

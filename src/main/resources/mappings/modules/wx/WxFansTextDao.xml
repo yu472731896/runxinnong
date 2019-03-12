@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sanrenxin.runxinnong.modules.wx.dao.WxFansTextDao">
+    
+	<sql id="wxFansTextColumns">
+		a.id AS "id",
+		a.content AS "content",
+		a.type AS "type",
+		a.open_id AS "openId",
+		a.reply AS "reply",
+		a.re_time AS "reTime",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		f.nick_name AS "fans.nickName",
+		f.nick_name_str AS "fans.nickNameStr",
+		f.gender AS "fans.gender",
+		f.country AS "fans.country",
+		f.province AS "fans.province",
+		f.city AS "fans.city",
+		f.head_img_url AS "fans.headImgUrl"
+	</sql>
+	
+	<sql id="wxFansTextJoins">
+	LEFT JOIN wx_account_fans f ON f.open_id = a.open_id AND f.del_flag = #{DEL_FLAG_NORMAL}
+	</sql>
+    
+	<select id="get" resultType="WxFansText">
+		SELECT 
+			<include refid="wxFansTextColumns"/>
+		FROM wx_fans_text a
+		<include refid="wxFansTextJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WxFansText">
+		SELECT 
+			<include refid="wxFansTextColumns"/>
+		FROM wx_fans_text a
+		<include refid="wxFansTextJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="content != null and content != ''">
+				AND a.content like 
+				<if test="dbName == 'mysql'">concat('%',#{content},'%')</if>
+			</if>
+			<if test="fans != null and fans.nickNameStr != null and fans.nickNameStr != ''">
+				AND f.nick_name_str like 
+				<if test="dbName == 'mysql'">concat('%',#{fans.nickNameStr},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="WxFansText">
+		SELECT 
+			<include refid="wxFansTextColumns"/>
+		FROM wx_fans_text a
+		<include refid="wxFansTextJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO wx_fans_text(
+			content,
+			type,
+			open_id,
+			reply,
+			re_time,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{content},
+			#{type},
+			#{openId},
+			#{reply},
+			#{reTime},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE wx_fans_text SET 	
+			content = #{content},
+			type = #{type},
+			open_id = #{openId},
+			reply = #{reply},
+			re_time = #{reTime},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE wx_fans_text SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

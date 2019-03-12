@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +38,7 @@ import java.util.List;
  * @author minghui
  * @version 2018-10-25
  */
-@Controller
+@RestController
 @Api(tags = "轮播图")
 @RequestMapping(value = "${frontPath}/run/runSlideShow")
 @Slf4j
@@ -75,21 +76,24 @@ public class FRunSlideShowController{
 	}
 
 	/**
-	 * 获取最新通知信息信息
+	 * 获取轮播图信息
 	 * @return Result
 	 * @author YMH
 	 * @date 2019-03-08
 	 */
-	@ApiOperation(value = "获取最新通知信息",httpMethod = "POST")
+	@ApiOperation(value = "获取轮播图信息",httpMethod = "POST")
 	@RequestMapping(value="/getRunSlideShow", method = RequestMethod.POST)
-	@ApiImplicitParam(name = "id", value = "最新通知Id",required = true)
+	@ApiImplicitParam(name = "id", value = "轮播图Id",required = true,dataType = "String",paramType = "query")
 	public Result getRunSlideShow(String id){
 		Result result = null;
 		try {
+		    if(StringUtils.isBlank(id)){
+		        return Result.error("轮播图Id不能为空");
+            }
 			result = Result.success("调用成功",runSlideShowService.get(id));
 		}catch (Exception e){
-			log.error("获取最新通知信息"+"异常："+e);
-			result = Result.error("获取最新通知信息异常"+e.getMessage());
+			log.error("获取轮播图信息"+"异常："+e);
+			result = Result.error("获取轮播图信息异常"+e.getMessage());
 		}
 		return result;
 	}

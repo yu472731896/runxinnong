@@ -30,6 +30,14 @@
 		<include refid="areaJoins"/>
 		WHERE a.id = #{id}
 	</select>
+
+	<select id="findNameLike" resultType="Area">
+		SELECT
+		<include refid="areaColumns"/>
+		FROM sys_area a
+		<include refid="areaJoins"/>
+		WHERE a.name like CONCAT('%',#{name},'%' ) and a.type = #{type}
+	</select>
 	
 	<select id="findList" resultType="Area">
 		SELECT

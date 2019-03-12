@@ -1,0 +1,37 @@
+.page_msg {
+    padding-left: 23px;
+    padding-right: 23px;
+    font-size: 16px;
+    text-align: center;
+}
+.page_msg .inner {
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+.page_msg .msg_icon_wrp {
+    display: block;
+    padding-bottom: 22px;
+}
+.page_msg .msg_content h4 {
+    font-weight: 400;
+    color: #000000;
+}
+.page_msg .msg_content p {
+    color: #90908E;
+}
+
+.icon80_smile{
+    width: 80px;
+    height: 80px;
+    display: inline-block;
+    vertical-align: middle;
+    background: transparent url(../images/icon80_smile181c98.png) no-repeat 0 0;
+}
+
+@media all and (-webkit-min-device-pixel-ratio: 2) {
+    .icon80_smile{
+        background-image: url(../images/icon80_smile.2x181c98.png);
+        background-size:80px;
+        -webkit-background-size:80px;
+    }
+}

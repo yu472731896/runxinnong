@@ -6,6 +6,7 @@ package com.sanrenxin.runxinnong.modules.run.dao;
 import com.sanrenxin.runxinnong.common.persistence.CrudDao;
 import com.sanrenxin.runxinnong.common.persistence.annotation.MyBatisDao;
 import com.sanrenxin.runxinnong.modules.run.entity.RunSlideShow;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -28,5 +29,7 @@ public interface RunSlideShowDao extends CrudDao<RunSlideShow> {
      * @author YMH
      * @date 2019-03-07
      */
-    List<RunSlideShow> getRunSlideShowList(String title, Integer pageNo, Integer rows, String orderType, String orderField);
+    List<RunSlideShow> getRunSlideShowList(@Param("title")String title, @Param("pageNo")Integer pageNo,
+                                           @Param("rows")Integer rows, @Param("orderType")String orderType,
+                                           @Param("orderField")String orderField);
 }

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sanrenxin.runxinnong.modules.wx.dao.WxMsgNewsDao">
+    
+	<sql id="wxMsgNewsColumns">
+		a.id AS "id",
+		a.mult_type AS "multType",
+		a.title AS "title",
+		a.author AS "author",
+		a.brief AS "brief",
+		a.description AS "description",
+		a.pic_path AS "picPath",
+		a.show_pic AS "showPic",
+		a.url AS "url",
+		a.from_url AS "fromUrl",
+		a.base_id AS "baseId",
+		a.media_id AS "mediaId",
+		a.thumb_media_id AS "thumbMediaId",
+		a.news_index AS "newsIndex",
+		a.account AS "account",
+		a.need_open_comment AS "needOpenComment",
+		a.only_fans_can_comment AS "onlyFansCanComment",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="wxMsgNewsJoins">
+	</sql>
+    
+	<select id="get" resultType="WxMsgNews">
+		SELECT 
+			<include refid="wxMsgNewsColumns"/>
+		FROM wx_msg_news a
+		<include refid="wxMsgNewsJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WxMsgNews">
+		SELECT 
+			<include refid="wxMsgNewsColumns"/>
+		FROM wx_msg_news a
+		<include refid="wxMsgNewsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="title != null and title != ''">
+				AND a.title LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{title},'%')</if>
+			</if>
+			<if test="multType != null and multType != ''">
+				AND a.mult_type LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{multType},'%')</if>
+			</if>
+			<if test="baseId != null and baseId != ''">
+				AND a.base_id = #{baseId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="WxMsgNews">
+		SELECT 
+			<include refid="wxMsgNewsColumns"/>
+		FROM wx_msg_news a
+		<include refid="wxMsgNewsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="baseId != null and baseId != ''">
+				AND a.base_id = #{baseId}
+			</if>
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO wx_msg_news(
+			mult_type,
+			title,
+			author,
+			brief,
+			description,
+			pic_path,
+			show_pic,
+			url,
+			from_url,
+			base_id,
+			media_id,
+			thumb_media_id,
+			news_index,
+			account,
+			need_open_comment,
+			only_fans_can_comment,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{multType},
+			#{title},
+			#{author},
+			#{brief},
+			#{description},
+			#{picPath},
+			#{showPic},
+			#{url},
+			#{fromUrl},
+			#{baseId},
+			#{mediaId},
+			#{thumbMediaId},
+			#{newsIndex},
+			#{account},
+			#{needOpenComment},
+			#{onlyFansCanComment},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE wx_msg_news SET 	
+			mult_type = #{multType},
+			title = #{title},
+			author = #{author},
+			brief = #{brief},
+			description = #{description},
+			pic_path = #{picPath},
+			show_pic = #{showPic},
+			url = #{url},
+			from_url = #{fromUrl},
+			base_id = #{baseId},
+			media_id = #{mediaId},
+			need_open_comment =#{needOpenComment},
+			only_fans_can_comment = ${onlyFansCanComment},
+			thumb_media_id = #{thumbMediaId},
+			news_index = #{newsIndex},
+			account = #{account},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE wx_msg_news SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	<update id="updateMediaId" parameterType="WxMsgNews" flushCache="true">
+		UPDATE wx_msg_news
+		SET
+		   media_id = #{mediaId} 
+		WHERE id = #{id}
+	</update>
+</mapper>

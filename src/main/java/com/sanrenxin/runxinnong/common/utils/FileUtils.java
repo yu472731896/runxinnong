@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -964,5 +965,30 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 			return null;
 		}
 		return fileName.substring(0, fileName.lastIndexOf("."));
+	}
+
+	/**
+	 * 获取某个文件夹下的文件名，不包含文件夹类型的
+	 * @param path 路径
+	 * @return
+	 */
+	public static List<String> getFileName(String path) {
+		File f = new File(path);
+		if (!f.exists()) {
+			System.out.println(path + " not exists");
+			return null;
+		}
+		List<String> fileNameList = new ArrayList<String>();
+		File fa[] = f.listFiles();
+		for (int i = 0; i < fa.length; i++) {
+			File fs = fa[i];
+			if (fs.isDirectory()) {
+				//System.out.println("文件夹类型");
+			} else {
+				//System.out.println("文件类型");
+				fileNameList.add(fs.getName());
+			}
+		}
+		return fileNameList;
 	}
 }

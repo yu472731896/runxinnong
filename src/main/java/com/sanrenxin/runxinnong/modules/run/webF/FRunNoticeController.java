@@ -86,10 +86,13 @@ public class FRunNoticeController{
 	 */
 	@ApiOperation(value = "获取最新通知信息",httpMethod = "POST")
 	@RequestMapping(value="/getRunNoticeInfo", method = RequestMethod.POST)
-	@ApiImplicitParam(name = "id", value = "最新通知Id",required = true)
+	@ApiImplicitParam(name = "id", value = "最新通知Id",required = true,dataType = "String",paramType = "query")
 	public Result getRunNoticeInfo(String id){
 		Result result = null;
 		try {
+            if(StringUtils.isBlank(id)){
+                return Result.error("最新通知Id不能为空");
+            }
 			result = Result.success("调用成功",runNoticeService.get(id));
 		}catch (Exception e){
 			log.error("获取最新通知信息"+"异常："+e);

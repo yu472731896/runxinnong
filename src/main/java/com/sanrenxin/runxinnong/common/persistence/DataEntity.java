@@ -52,6 +52,10 @@ public abstract class DataEntity<T> extends BaseEntity<T> {
 		if (StringUtils.isNotBlank(user.getId())){
 			this.updateBy = user;
 			this.createBy = user;
+		}else{
+			user.setId("isnouser");
+			this.updateBy = user;
+			this.createBy = user;
 		}
 		this.updateDate = new Date();
 		this.createDate = this.updateDate;

@@ -3,6 +3,7 @@
  */
 package com.sanrenxin.runxinnong.modules.run.webF;
 
+import com.sanrenxin.runxinnong.common.utils.StringUtils;
 import com.sanrenxin.runxinnong.modules.run.entity.RunDailyArticle;
 import com.sanrenxin.runxinnong.modules.run.service.RunDailyArticleService;
 import com.sanrenxin.runxinnong.modules.sys.utils.Result;
@@ -68,10 +69,13 @@ public class FRunDailyArticleController {
 	 */
 	@ApiOperation(value = "获取每日一文信息",httpMethod = "POST")
 	@RequestMapping(value="/getRunDailyArticle", method = RequestMethod.POST)
-    @ApiImplicitParam(name = "id", value = "每日一文Id",required = true)
+    @ApiImplicitParam(name = "id", value = "每日一文Id",required = true,dataType = "String",paramType = "query")
 	public Result getRunDailyArticle(String id){
 		Result result = null;
 		try {
+            if(StringUtils.isBlank(id)){
+                return Result.error("每日一文Id不能为空");
+            }
             result = Result.success("调用成功",runDailyArticleService.get(id));
 		}catch (Exception e){
 			log.error("获取每日一文信息"+"异常："+e);

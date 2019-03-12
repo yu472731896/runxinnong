@@ -106,6 +106,20 @@ public class Global {
 	}
 
 	/**
+	 * 获取项目全路径
+	 */
+	public static String getBasePath() {
+		return getConfig("basePath");
+	}
+
+	/**
+	 * 获取项目全路径
+	 */
+	public static String getBaseStaticPath() {
+		return getConfig("baseStaticPath");
+	}
+
+	/**
 	 * 获取URL后缀
 	 */
 	public static String getUrlSuffix() {

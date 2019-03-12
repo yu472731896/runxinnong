@@ -6,6 +6,7 @@ package com.sanrenxin.runxinnong.common.web;
 import java.beans.PropertyEditorSupport;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -36,6 +37,8 @@ import com.sanrenxin.runxinnong.common.utils.DateUtils;
  * @version 2013-3-23
  */
 public abstract class BaseController {
+
+	public static ThreadLocal<HashMap<String,String>> threadLocal = new ThreadLocal<HashMap<String,String>>();
 
 	/**
 	 * 日志对象

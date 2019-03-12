@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sanrenxin.runxinnong.modules.wx.dao.WxTplMsgTextDao">
+    
+	<sql id="wxTplMsgTextColumns">
+		a.id AS "id",
+		a.tpl_id AS "tplId",
+		a.title AS "title",
+		a.content AS "content",
+		a.wx_tpl AS "wxTpl",
+		a.base_id AS "baseId",
+		a.account AS "account",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="wxTplMsgTextJoins">
+	</sql>
+    
+	<select id="get" resultType="WxTplMsgText">
+		SELECT 
+			<include refid="wxTplMsgTextColumns"/>
+		FROM wx_tpl_msg_text a
+		<include refid="wxTplMsgTextJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WxTplMsgText">
+		SELECT 
+			<include refid="wxTplMsgTextColumns"/>
+		FROM wx_tpl_msg_text a
+		<include refid="wxTplMsgTextJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="title != null and title != ''">
+				AND a.title LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{title},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="WxTplMsgText">
+		SELECT 
+			<include refid="wxTplMsgTextColumns"/>
+		FROM wx_tpl_msg_text a
+		<include refid="wxTplMsgTextJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO wx_tpl_msg_text(
+			tpl_id,
+			title,
+			content,
+			wx_tpl,
+			base_id,
+			account,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{tplId},
+			#{title},
+			#{content},
+			#{wxTpl},
+			#{baseId},
+			#{account},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	<insert id="saveList" parameterType="list" >  
+        INSERT INTO wx_tpl_msg_text ( 
+			tpl_id,
+			title,
+			content,
+			wx_tpl,
+			base_id,
+			account,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag )
+        VALUES
+        <foreach  collection="list" item="item" index="index" separator="," >  
+        	<![CDATA[
+        	(
+			#{item.tplId},
+			#{item.title},
+			#{item.content},
+			#{item.wxTpl},
+			#{item.baseId},
+			#{item.account},
+			#{item.createBy.id},
+			#{item.createDate},
+			#{item.updateBy.id},
+			#{item.updateDate},
+			#{item.remarks},
+			#{item.delFlag}
+			)
+			]]>
+        </foreach> 
+    </insert>
+	<update id="update">
+		UPDATE wx_tpl_msg_text SET 	
+			tpl_id = #{tplId},
+			title = #{title},
+			content = #{content},
+			wx_tpl = #{wxTpl},
+			base_id = #{baseId},
+			account = #{account},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE wx_tpl_msg_text SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	<update id="deleteAll">
+		UPDATE wx_tpl_msg_text SET 
+			del_flag = #{DEL_FLAG_DELETE}
+			where del_flag = #{DEL_FLAG_NORMAL}
+	</update>
+</mapper>

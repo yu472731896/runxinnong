@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sanrenxin.runxinnong.modules.wx.dao.WxAccountFansDao">
+    
+	<sql id="wxAccountFansColumns">
+		a.id AS "id",
+		a.open_id AS "openId",
+		a.subscribe_status AS "subscribeStatus",
+		a.subscribe_time AS "subscribeTime",
+		a.nick_name AS "nickName",
+		a.nick_name_str AS "nickNameStr",
+		a.gender AS "gender",
+		a.language AS "language",
+		a.country AS "country",
+		a.province AS "province",
+		a.city AS "city",
+		a.head_img_url AS "headImgUrl",
+		a.status AS "status",
+		a.remark AS "remark",
+		a.account AS "account",
+		a.wx_id AS "wxId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="wxAccountFansJoins">
+	</sql>
+    
+	<select id="get" resultType="WxAccountFans">
+		SELECT 
+			<include refid="wxAccountFansColumns"/>
+		FROM wx_account_fans a
+		<include refid="wxAccountFansJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WxAccountFans">
+		SELECT 
+			<include refid="wxAccountFansColumns"/>
+		FROM wx_account_fans a
+		<include refid="wxAccountFansJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="openId != null and openId != ''">
+				AND a.open_id = #{openId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="WxAccountFans">
+		SELECT 
+			<include refid="wxAccountFansColumns"/>
+		FROM wx_account_fans a
+		<include refid="wxAccountFansJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert"  useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO wx_account_fans(
+			id,
+			open_id,
+			subscribe_status,
+			subscribe_time,
+			nick_name,
+			nick_name_str,
+			gender,
+			language,
+			country,
+			province,
+			city,
+			head_img_url,
+			status,
+			remark,
+			account,
+			wx_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{openId},
+			#{subscribeStatus},
+			#{subscribeTime},
+			#{nickName},
+			#{nickNameStr},
+			#{gender},
+			#{language},
+			#{country},
+			#{province},
+			#{city},
+			#{headImgUrl},
+			#{status},
+			#{remark},
+			#{account},
+			#{wxId},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	<insert id="saveList" parameterType="list" >  
+        INSERT INTO wx_account_fans ( 
+			open_id,
+			subscribe_status,
+			subscribe_time,
+			nick_name,
+			nick_name_str,
+			gender,
+			language,
+			country,
+			province,
+			city,
+			head_img_url,
+			status,
+			remark,
+			account,
+			wx_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag )
+        VALUES
+        <foreach  collection="list" item="item" index="index" separator="," >  
+        	<![CDATA[
+        	(
+			#{item.openId},
+			#{item.subscribeStatus},
+			#{item.subscribeTime},
+			#{item.nickName},
+			#{item.nickNameStr},
+			#{item.gender},
+			#{item.language},
+			#{item.country},
+			#{item.province},
+			#{item.city},
+			#{item.headImgUrl},
+			#{item.status},
+			#{item.remark},
+			#{item.account},
+			#{item.wxId},
+			#{item.createBy.id},
+			#{item.createDate},
+			#{item.updateBy.id},
+			#{item.updateDate},
+			#{item.remarks},
+			#{item.delFlag}
+			)
+			]]>
+        </foreach> 
+    </insert>
+	<update id="update">
+		UPDATE wx_account_fans SET 	
+			open_id = #{openId},
+			subscribe_status = #{subscribeStatus},
+			subscribe_time = #{subscribeTime},
+			nick_name = #{nickName},
+			nick_name_str = #{nickNameStr},
+			gender = #{gender},
+			language = #{language},
+			country = #{country},
+			province = #{province},
+			city = #{city},
+			head_img_url = #{headImgUrl},
+			status = #{status},
+			remark = #{remark},
+			account = #{account},
+			wx_id = #{wxId},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE wx_account_fans SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	<update id="deleteAll">
+		UPDATE wx_account_fans SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE del_flag =#{DEL_FLAG_NORMAL}
+	</update>
+	<select id="getLastOpenId" resultType="WxAccountFans">
+		SELECT * FROM wx_account_fans where del_flag = #{DEL_FLAG_NORMAL}
+		ORDER BY ID DESC
+		LIMIT 0 , 1
+	</select>
+</mapper>

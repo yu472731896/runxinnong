@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sanrenxin.runxinnong.modules.run.dao.RunLeaveMessageDao">
+    
+	<sql id="runLeaveMessageColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.phone_number AS "phoneNumber",
+		a.email AS "email",
+		a.address AS "address",
+		a.content AS "content",
+		a.create_by AS "createBy.id",
+		a.state AS "state",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="runLeaveMessageJoins">
+	</sql>
+    
+	<select id="get" resultType="RunLeaveMessage">
+		SELECT 
+			<include refid="runLeaveMessageColumns"/>
+		FROM run_leave_message a
+		<include refid="runLeaveMessageJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="RunLeaveMessage">
+		SELECT 
+			<include refid="runLeaveMessageColumns"/>
+		FROM run_leave_message a
+		<include refid="runLeaveMessageJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="phoneNumber != null and phoneNumber != ''">
+				AND a.phone_number LIKE 
+					<if test="dbName == 'oracle'">'%'||#{phoneNumber}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{phoneNumber}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{phoneNumber},'%')</if>
+			</if>
+			<if test="email != null and email != ''">
+				AND a.email = #{email}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="RunLeaveMessage">
+		SELECT 
+			<include refid="runLeaveMessageColumns"/>
+		FROM run_leave_message a
+		<include refid="runLeaveMessageJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO run_leave_message(
+			id,
+			name,
+			phone_number,
+			email,
+			address,
+			content,
+			create_by,
+			state,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{name},
+			#{phoneNumber},
+			#{email},
+			#{address},
+			#{content},
+			#{createBy.id},
+			#{state},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE run_leave_message SET 	
+			name = #{name},
+			phone_number = #{phoneNumber},
+			email = #{email},
+			address = #{address},
+			content = #{content},
+			state = #{state},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE run_leave_message SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

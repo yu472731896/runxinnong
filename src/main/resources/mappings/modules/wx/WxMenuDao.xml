@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sanrenxin.runxinnong.modules.wx.dao.WxMenuDao">
+    
+	<sql id="wxMenuColumns">
+		a.id AS "id",
+		a.mtype AS "mtype",
+		a.event_type AS "eventType",
+		a.name AS "name",
+		a.input_code AS "inputCode",
+		a.url AS "url",
+		a.sort AS "sort",
+		a.parent_id AS "parentId",
+		a.msg_type AS "msgType",
+		a.msg_id AS "msgId",
+		a.gid AS "gid",
+		a.account AS "account",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="wxMenuJoins">
+	</sql>
+    
+	<select id="get" resultType="WxMenu">
+		SELECT 
+			<include refid="wxMenuColumns"/>
+		FROM wx_menu a
+		<include refid="wxMenuJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WxMenu">
+		SELECT 
+			<include refid="wxMenuColumns"/>
+		FROM wx_menu a
+		<include refid="wxMenuJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="WxMenu">
+		SELECT 
+			<include refid="wxMenuColumns"/>
+		FROM wx_menu a
+		<include refid="wxMenuJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert"  useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO wx_menu(
+			mtype,
+			event_type,
+			name,
+			input_code,
+			url,
+			sort,
+			parent_id,
+			msg_type,
+			msg_id,
+			gid,
+			account,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{mtype},
+			#{eventType},
+			#{name},
+			#{inputCode},
+			#{url},
+			#{sort},
+			#{parentId},
+			#{msgType},
+			#{msgId},
+			#{gid},
+			#{account},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE wx_menu SET 	
+			mtype = #{mtype},
+			event_type = #{eventType},
+			name = #{name},
+			input_code = #{inputCode},
+			url = #{url},
+			sort = #{sort},
+			parent_id = #{parentId},
+			msg_type = #{msgType},
+			msg_id = #{msgId},
+			gid = #{gid},
+			account = #{account},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE wx_menu SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="deleteall">
+		UPDATE wx_menu SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE 1=1
+	</update>
+</mapper>

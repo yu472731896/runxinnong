@@ -139,10 +139,10 @@
 		</choose>
 		<choose>
 			<when test="orderType != null and orderType != ''">
-				<if test="orderType == '0'.toString">
+				<if test="orderType == 'ASC'.toString()">
 					ASC
 				</if>
-				<if test="orderType == '1'.toString">
+				<if test="orderType == 'DESC'.toString()">
 					DESC
 				</if>
 			</when>

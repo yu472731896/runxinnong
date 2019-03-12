@@ -6,6 +6,9 @@ package com.sanrenxin.runxinnong.modules.sys.dao;
 import com.sanrenxin.runxinnong.common.persistence.TreeDao;
 import com.sanrenxin.runxinnong.common.persistence.annotation.MyBatisDao;
 import com.sanrenxin.runxinnong.modules.sys.entity.Area;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 区域DAO接口
@@ -14,5 +17,6 @@ import com.sanrenxin.runxinnong.modules.sys.entity.Area;
  */
 @MyBatisDao
 public interface AreaDao extends TreeDao<Area> {
-	
+
+    List<Area> findNameLike(@Param(value="name") String name, @Param(value="type") String type);
 }
